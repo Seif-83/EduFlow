@@ -538,11 +538,21 @@
       const pct = maxScore > 0 ? Math.min(100, Math.round((score / maxScore) * 100)) : 0;
       const warning = pct < 70;
 
+      // Find full student info if needed (for parent_email, grade, etc.)
+      let student = null;
+      if (item.student_id) {
+        student = this.getStudentById(item.student_id);
+      }
+      const studentName = item.student_name || (student ? student.student_name : 'طالب');
+      const grade = item.grade_level || item.grade || (student ? student.grade_level : 'الصف الثاني الإعدادي');
+      const lessonTitle = item.title || item.lesson || 'اختبار تفاعلي';
+      const parentEmail = item.parent_email || (student ? student.parent_email : '') || 'seifamrmohsen2005@gmail.com';
+
       const record = {
         assessment_id: 'ASM-' + (list.length + 10),
         student_id: item.student_id,
-        title: item.title || 'اختبار تفاعلي',
-        grade_level: item.grade_level || 'الصف الثاني الإعدادي',
+        title: lessonTitle,
+        grade_level: grade,
         subject: item.subject || 'العلوم',
         score: score,
         max_score: maxScore,
@@ -567,14 +577,19 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             student_id: record.student_id,
-            student_name: item.student_name || '',
-            title: record.title,
-            grade_level: record.grade_level,
+            student_name: studentName,
+            // Match both n8n parameter conventions:
+            grade: grade,
+            grade_level: grade,
+            lesson: lessonTitle,
+            title: lessonTitle,
             subject: record.subject,
-            score: record.score,
-            max_score: record.max_score,
-            pct: record.pct,
-            warning_flag: record.warning_flag,
+            score: `${score}/${maxScore}`,
+            raw_score: score,
+            max_score: maxScore,
+            pct: pct,
+            parent_email: parentEmail,
+            warning_flag: warning,
             submitted_at: record.submitted_at
           })
         }).catch(function () {});
