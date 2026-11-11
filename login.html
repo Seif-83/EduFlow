@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduFlow 🎓 | بوابة تسجيل الدخول والتسجيل الموحدة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --secondary: #0f172a;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --card-bg: #ffffff;
+      --bg: #0f172a;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: radial-gradient(circle at 10% 20%, #1e293b 0%, #0f172a 90%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background lighting */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, transparent 70%);
+      top: -120px;
+      right: -100px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
+      bottom: -100px;
+      left: -100px;
+      pointer-events: none;
+    }
+
+    /* Header Brand */
+    .brand-box {
+      text-align: center;
+      margin-bottom: 24px;
+      z-index: 10;
+    }
+    .brand-icon-big {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      color: white;
+      box-shadow: 0 12px 28px rgba(37, 99, 235, 0.45);
+      margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .brand-box h1 {
+      font-size: 27px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+    .brand-box p {
+      font-size: 13.5px;
+      color: #94a3b8;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Main Gateway Card */
+    .login-card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      position: relative;
+    }
+
+    /* Navigation Tabs */
+    .role-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+    .role-tab-btn {
+      padding: 10px 4px;
+      border: none;
+      background: transparent;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .role-tab-btn:hover { color: var(--primary); }
+    .role-tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    }
+    .role-tab-btn.register-tab.active {
+      color: #059669;
+    }
+    .role-tab-btn .tab-ico { font-size: 18px; }
+
+    /* Parent Sub-Toggle Bar */
+    .sub-toggle-bar {
+      display: flex;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .sub-toggle-btn {
+      flex: 1;
+      padding: 9px 8px;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sub-toggle-btn:hover { color: #0284c7; }
+    .sub-toggle-btn.active {
+      background: #ffffff;
+      color: #0284c7;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Panels */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; animation: fadeIn 0.22s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .role-intro {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .role-intro h3 {
+      font-size: 18px;
+      color: #1e3a8a;
+      font-weight: 800;
+    }
+    .role-intro p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+      background: #f8fafc;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      transition: all 0.2s ease;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+    }
+    .btn-register {
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    }
+    .btn-register:hover {
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    }
+
+    .auth-error-msg {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-top: 14px;
+      display: none;
+      text-align: center;
+    }
+
+    /* Floating Supabase Cloud Settings Pill */
+    .db-status-pill {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #94a3b8;
+      padding: 8px 14px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    .db-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    /* Modal for Registration Success & WhatsApp */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: #ffffff;
+      border-radius: 20px;
+      max-width: 480px;
+      width: 100%;
+      padding: 28px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+      text-align: center;
+      position: relative;
+      animation: modalPop 0.25s ease;
+    }
+    @keyframes modalPop { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .modal-badge-ico {
+      width: 60px;
+      height: 60px;
+      background: #ecfdf5;
+      color: #10b981;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 14px;
+      border: 2px solid #a7f3d0;
+    }
+    .modal-box h3 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .modal-code-card {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 16px;
+      margin: 18px 0;
+    }
+    .modal-code-val {
+      font-size: 28px;
+      font-weight: 900;
+      color: #2563eb;
+      letter-spacing: 2px;
+      font-family: monospace;
+    }
+    .btn-wa {
+      background: #25d366;
+      color: white;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+      transition: all 0.2s ease;
+      margin-bottom: 8px;
+    }
+    .btn-wa:hover {
+      background: #1eb956;
+      transform: translateY(-1px);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: #94a3b8;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Brand Header -->
+  <div class="brand-box">
+    <div class="brand-icon-big">🎓</div>
+    <h1>EduFlow — المنظومة التعليمية السحابية</h1>
+    <p>AI-Powered Automated Teacher-Student Operating System & Early Warning Engine</p>
+  </div>
+
+  <!-- Gateway Card -->
+  <div class="login-card">
+    <!-- Role Switcher Tabs -->
+    <div class="role-tabs">
+      <button type="button" class="role-tab-btn active" id="tabStudentBtn" onclick="switchRoleTab('student')">
+        <span class="tab-ico">👨‍🎓</span>
+        <span>دخول الطالب</span>
+      </button>
+      <button type="button" class="role-tab-btn register-tab" id="tabRegisterBtn" onclick="switchRoleTab('register')">
+        <span class="tab-ico">✍️</span>
+        <span>تسجيل طالب</span>
+      </button>
+      <button type="button" class="role-tab-btn" id="tabParentBtn" onclick="switchRoleTab('parent')">
+        <span class="tab-ico">👨‍👩‍👧‍👦</span>
+        <span>ولي الأمر</span>
+      </button>
+      <button type="button" class="role-tab-btn" id="tabTeacherBtn" onclick="switchRoleTab('teacher')">
+        <span class="tab-ico">👨‍🏫</span>
+        <span>المعلم</span>
+      </button>
+    </div>
+
+    <!-- PANEL 1: STUDENT LOGIN -->
+    <div class="form-panel active" id="panelStudent">
+      <div class="role-intro">
+        <h3>تسجيل دخول الطالب 👨‍🎓</h3>
+        <p>ادخل كود قيدك المميز أو رقم الهاتف لحل الاختبارات المقررة</p>
+      </div>
+      <form onsubmit="handleStudentLogin(event)">
+        <div class="form-group">
+          <label>كود الطالب المميز أو رقم الهاتف:</label>
+          <input type="text" id="stuIdentifier" class="form-input" placeholder="مثال: EDU-1011 أو 01012345678" required autofocus>
+        </div>
+        <div class="form-group">
+          <label>الرقم السري (PIN):</label>
+          <input type="password" id="stuPin" class="form-input" placeholder="الرمز السري المخصص لحسابك..." required>
+        </div>
+        <button type="submit" class="btn-login" id="btnStudentSubmit">
+          <span>🚀 الدخول لبوابة الاختبارات والمناهج</span>
+        </button>
+        <div class="auth-error-msg" id="stuError"></div>
+      </form>
+    </div>
+
+    <!-- PANEL 2: NEW STUDENT REGISTRATION -->
+    <div class="form-panel" id="panelRegister">
+      <div class="role-intro">
+        <h3 style="color: #059669;">تسجيل طالب جديد في المنظومة ✍️</h3>
+        <p>سجل بياناتك وسيتم توليد كود الطالب وإرساله فوراً عبر الواتساب</p>
+      </div>
+      <form onsubmit="handleStudentRegistration(event)">
+        <div class="form-group">
+          <label>اسم الطالب ثلاثي / المميز:</label>
+          <input type="text" id="regName" class="form-input" placeholder="أدخل اسم الطالب ثلاثي..." required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>المرحلة الدراسية:</label>
+            <select id="regGrade" class="form-select" required>
+              <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+              <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
+              <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+              <option value="المرحلة الثانوية">المرحلة الثانوية</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>النوع:</label>
+            <select id="regGender" class="form-select">
+              <option value="male">طالب (ذكر) 👨‍🎓</option>
+              <option value="female">طالبة (أنثى) 👩‍🎓</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>رقم هاتف الطالب (مفعل عليه WhatsApp لاستلام كود الطالب):</label>
+          <input type="tel" id="regPhone" class="form-input" placeholder="مثال: 01012345678" required>
+        </div>
+        <div class="form-group">
+          <label>اختر رقماً سرياً لحسابك (PIN):</label>
+          <input type="password" id="regPin" class="form-input" placeholder="أدخل رقماً سرياً من 4 أرقام على الأقل..." required>
+        </div>
+        <button type="submit" class="btn-login btn-register" id="btnRegisterSubmit">
+          <span>✨ إنشاء حساب الطالب واستلام كود القيد عبر واتساب</span>
+        </button>
+        <div style="font-size: 11.5px; color: #64748b; text-align: center; margin-top: 10px; line-height: 1.5;">
+          💡 بعد التسجيل، ستحصل على كود الطالب الخاص بك لمشاركته مع ولي أمرك لربط حسابه ومتابعة درجاتك أولاً بأول.
+        </div>
+        <div class="auth-error-msg" id="regError"></div>
+      </form>
+    </div>
+
+    <!-- PANEL 3: PARENT PORTAL (LOGIN & REGISTRATION) -->
+    <div class="form-panel" id="panelParent">
+      <div class="role-intro">
+        <h3>بوابة ولي الأمر للمتابعة 👨‍👩‍👧‍👦</h3>
+        <p>متابعة درجات الأبناء، الحضور، وتوصيات خطط الدعم والإنذار المبكر</p>
+      </div>
+
+      <!-- Sub-Toggle Between Login & Register -->
+      <div class="sub-toggle-bar">
+        <button type="button" class="sub-toggle-btn active" id="btnParentModeLogin" onclick="switchParentSubTab('login')">
+          🔑 دخول ولي الأمر
+        </button>
+        <button type="button" class="sub-toggle-btn" id="btnParentModeRegister" onclick="switchParentSubTab('register')">
+          ✍️ تسجيل ولي أمر جديد
+        </button>
+      </div>
+
+      <!-- FORM 3A: PARENT LOGIN -->
+      <form id="parentLoginForm" onsubmit="handleParentLogin(event)">
+        <div class="form-group">
+          <label>بريد ولي الأمر المسجل في المنظومة:</label>
+          <input type="email" id="parentEmail" class="form-input" placeholder="parent@example.com" style="direction: ltr;" required>
+        </div>
+        <div class="form-group">
+          <label>رمز الدخول السري لولي الأمر (PIN):</label>
+          <input type="password" id="parentPin" class="form-input" placeholder="أدخل رمز الدخول السري..." required>
+        </div>
+        <button type="submit" class="btn-login" id="btnParentSubmit" style="background: linear-gradient(135deg, #0ea5e9, #2563eb);">
+          <span>📊 الدخول لبوابة متابعة ولي الأمر</span>
+        </button>
+        <div style="text-align: center; margin-top: 14px; font-size: 12.5px;">
+          <a href="#" onclick="switchParentSubTab('register'); return false;" style="color: #2563eb; font-weight: 700; text-decoration: none;">
+            ليس لديك حساب مسجل؟ تسجيل ولي أمر جديد وربط ابنك 👈
+          </a>
+        </div>
+        <div class="auth-error-msg" id="parentError"></div>
+      </form>
+
+      <!-- FORM 3B: PARENT REGISTRATION & STUDENT LINKING -->
+      <form id="parentRegisterForm" onsubmit="handleParentRegistration(event)" style="display: none;">
+        <div class="form-group">
+          <label>اسم ولي الأمر ثلاثي:</label>
+          <input type="text" id="parentRegName" class="form-input" placeholder="أدخل اسم ولي الأمر ثلاثي..." required>
+        </div>
+        <div class="form-group">
+          <label>بريد ولي الأمر المعتمد للإشعارات:</label>
+          <input type="email" id="parentRegEmail" class="form-input" placeholder="parent@example.com" style="direction: ltr;" required>
+        </div>
+        <div class="form-group">
+          <label>رقم هاتف ولي الأمر (للتواصل أو WhatsApp):</label>
+          <input type="tel" id="parentRegPhone" class="form-input" placeholder="مثال: 01012345678" required>
+        </div>
+        <div class="form-group">
+          <label>كود قيد الطالب (Student Code) الخاص بابنك:</label>
+          <input type="text" id="parentRegChildCode" class="form-input" placeholder="مثال: EDU-1011 أو EDU-XXXX" style="font-family: monospace; font-weight: 800; letter-spacing: 1px;" required>
+          <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">
+            💡 ادخل كود القيد الذي استلمه ابنك على الواتساب عند تسجيل حسابه لربطه بملفك فوراً
+          </div>
+        </div>
+        <div class="form-group">
+          <label>اختر رمزاً سرياً لحسابك (PIN):</label>
+          <input type="password" id="parentRegPin" class="form-input" placeholder="أدخل رقماً سرياً من 4 أرقام على الأقل..." required>
+        </div>
+        <button type="submit" class="btn-login" id="btnParentRegSubmit" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <span>✨ تسجيل حساب ولي الأمر وربطه بالطالب</span>
+        </button>
+        <div style="text-align: center; margin-top: 14px; font-size: 12.5px;">
+          <a href="#" onclick="switchParentSubTab('login'); return false;" style="color: #059669; font-weight: 700; text-decoration: none;">
+            لديك حساب مسجل بالفعل؟ تسجيل الدخول 👈
+          </a>
+        </div>
+        <div class="auth-error-msg" id="parentRegError"></div>
+      </form>
+    </div>
+
+    <!-- PANEL 4: TEACHER & ADMIN LOGIN -->
+    <div class="form-panel" id="panelTeacher">
+      <div class="role-intro">
+        <h3>بوابة المعلم والإدارة 👨‍🏫</h3>
+        <p>استعلام ملفات الطلاب بكود القيد، رصد الحضور، وإنشاء الامتحانات الموجهة</p>
+      </div>
+      <form onsubmit="handleTeacherLogin(event)">
+        <div class="form-group">
+          <label>كلمة مرور لوحة المعلم والإدارة:</label>
+          <input type="password" id="teacherPass" class="form-input" placeholder="أدخل كلمة المرور الخاصة بالمعلم..." required>
+        </div>
+        <button type="submit" class="btn-login" id="btnTeacherSubmit" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <span>🔐 فتح لوحة تحكم المعلم الشاملة</span>
+        </button>
+        <div class="auth-error-msg" id="teacherError"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Registration Success & WhatsApp Modal -->
+  <div class="modal-overlay" id="regSuccessModal">
+    <div class="modal-box">
+      <div class="modal-badge-ico">🎉</div>
+      <h3>تم تسجيل حساب الطالب بنجاح!</h3>
+      <p style="font-size: 13px; color: #64748b;">
+        تم حفظ بيانات الطالب في قاعدة البيانات السحابية وإصدار كود القيد الرسمي الخاص به:
+      </p>
+
+      <div class="modal-code-card">
+        <div style="font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 4px;">كود الطالب المميز (Student Code)</div>
+        <div class="modal-code-val" id="modalGeneratedCode">EDU-XXXX</div>
+        <div style="font-size: 11.5px; color: #10b981; font-weight: 700; margin-top: 4px;">✓ كود معتمد ومربوط بقاعدة بيانات Supabase</div>
+      </div>
+
+      <a id="modalWaBtn" href="#" target="_blank" class="btn-wa">
+        <span>💬 فتح رسالة التأكيد عبر واتساب (WhatsApp Web)</span>
+      </a>
+
+      <button type="button" class="btn-login" onclick="loginWithNewAccount()">
+        <span>🚀 الدخول فوراً بحسابي الجديد إلى المنصة</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Supabase Cloud Status Pill -->
+  <div class="db-status-pill">
+    <span class="db-dot"></span>
+    <span>قاعدة بيانات Supabase: متصلة سحابياً 🟢</span>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    منظومة EduFlow لمتابعة أداء الطلاب 2026 | تطوير وإشراف: سيف عمرو | مدعوم بـ Supabase و n8n و Gemini
+  </footer>
+
+  <script src="eduflow-core.js"></script>
+  <script>
+    let registeredStudentData = null;
+
+    function switchRoleTab(role) {
+      document.querySelectorAll('.role-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+
+      if (role === 'student') {
+        document.getElementById('tabStudentBtn').classList.add('active');
+        document.getElementById('panelStudent').classList.add('active');
+      } else if (role === 'register') {
+        document.getElementById('tabRegisterBtn').classList.add('active');
+        document.getElementById('panelRegister').classList.add('active');
+      } else if (role === 'parent') {
+        document.getElementById('tabParentBtn').classList.add('active');
+        document.getElementById('panelParent').classList.add('active');
+      } else if (role === 'teacher') {
+        document.getElementById('tabTeacherBtn').classList.add('active');
+        document.getElementById('panelTeacher').classList.add('active');
+      }
+    }
+
+    // 1. Student Login (Async Cloud First)
+    async function handleStudentLogin(e) {
+      e.preventDefault();
+      const id = document.getElementById('stuIdentifier').value.trim();
+      const pin = document.getElementById('stuPin').value.trim();
+      const err = document.getElementById('stuError');
+      const btn = document.getElementById('btnStudentSubmit');
+      err.style.display = 'none';
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ جاري التحقق من السجلات السحابية...</span>';
+
+      try {
+        const res = await EduFlow.loginStudentAsync(id, pin);
+        if (res.success) {
+          window.location.href = 'index.html';
+        } else {
+          err.innerText = '⚠️ ' + res.error;
+          err.style.display = 'block';
+        }
+      } catch (ex) {
+        err.innerText = '⚠️ تعذر التحقق، يرجى المحاولة مرة أخرى.';
+        err.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🚀 الدخول لبوابة الاختبارات والمناهج</span>';
+      }
+    }
+
+    // 2. Student Self-Registration (Async Cloud Direct)
+    async function handleStudentRegistration(e) {
+      e.preventDefault();
+      const err = document.getElementById('regError');
+      const btn = document.getElementById('btnRegisterSubmit');
+      err.style.display = 'none';
+
+      const studentName = document.getElementById('regName').value.trim();
+      const grade = document.getElementById('regGrade').value;
+      const gender = document.getElementById('regGender').value;
+      const phone = document.getElementById('regPhone').value.trim();
+      const pin = document.getElementById('regPin').value.trim();
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ جاري التسجيل وتوليد كود الطالب في Supabase...</span>';
+
+      try {
+        const res = await EduFlow.registerStudentAsync({
+          student_name: studentName,
+          grade_level: grade,
+          gender: gender,
+          student_phone: phone,
+          pin: pin
+        });
+
+        if (res.success) {
+          registeredStudentData = res.student;
+          document.getElementById('modalGeneratedCode').innerText = res.code;
+          document.getElementById('modalWaBtn').href = res.whatsappUrl;
+          document.getElementById('regSuccessModal').classList.add('active');
+        } else {
+          err.innerText = '⚠️ ' + res.error;
+          err.style.display = 'block';
+        }
+      } catch (ex) {
+        err.innerText = '⚠️ حدث خطأ أثناء التسجيل السحابي.';
+        err.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>✨ إنشاء حساب الطالب واستلام كود القيد عبر واتساب</span>';
+      }
+    }
+
+    function loginWithNewAccount() {
+      if (registeredStudentData) {
+        sessionStorage.setItem('eduflow_student_auth', JSON.stringify(registeredStudentData));
+        window.location.href = 'index.html';
+      }
+    }
+
+    // 3. Parent Portal Controls (Switch Sub-tabs & Registration)
+    function switchParentSubTab(mode) {
+      const btnLogin = document.getElementById('btnParentModeLogin');
+      const btnReg = document.getElementById('btnParentModeRegister');
+      const formLogin = document.getElementById('parentLoginForm');
+      const formReg = document.getElementById('parentRegisterForm');
+      const err = document.getElementById('parentError');
+      const regErr = document.getElementById('parentRegError');
+      if (err) err.style.display = 'none';
+      if (regErr) regErr.style.display = 'none';
+
+      if (mode === 'login') {
+        btnLogin.classList.add('active');
+        btnReg.classList.remove('active');
+        formLogin.style.display = 'block';
+        formReg.style.display = 'none';
+      } else {
+        btnLogin.classList.remove('active');
+        btnReg.classList.add('active');
+        formLogin.style.display = 'none';
+        formReg.style.display = 'block';
+      }
+    }
+
+    async function handleParentRegistration(e) {
+      e.preventDefault();
+      const name = document.getElementById('parentRegName').value.trim();
+      const email = document.getElementById('parentRegEmail').value.trim();
+      const phone = document.getElementById('parentRegPhone').value.trim();
+      const childCode = document.getElementById('parentRegChildCode').value.trim();
+      const pin = document.getElementById('parentRegPin').value.trim();
+      const err = document.getElementById('parentRegError');
+      const btn = document.getElementById('btnParentRegSubmit');
+      err.style.display = 'none';
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ جاري التحقق من كود الطالب وربطه في Supabase...</span>';
+
+      try {
+        const res = await EduFlow.registerParentAsync({
+          parent_name: name,
+          parent_email: email,
+          parent_phone: phone,
+          student_code: childCode,
+          pin: pin
+        });
+
+        if (res.success) {
+          btn.innerHTML = '<span>✓ تم ربط حسابك بنجاح! جاري الانتقال...</span>';
+          setTimeout(() => {
+            window.location.href = 'parent.html';
+          }, 700);
+        } else {
+          err.innerText = '⚠️ ' + res.error;
+          err.style.display = 'block';
+          btn.disabled = false;
+          btn.innerHTML = '<span>✨ تسجيل حساب ولي الأمر وربطه بالطالب</span>';
+        }
+      } catch (ex) {
+        err.innerText = '⚠️ حدث خطأ أثناء تسجيل ولي الأمر.';
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<span>✨ تسجيل حساب ولي الأمر وربطه بالطالب</span>';
+      }
+    }
+
+    // 4. Parent Login (Async Cloud Direct)
+    async function handleParentLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('parentEmail').value.trim();
+      const pin = document.getElementById('parentPin').value.trim();
+      const err = document.getElementById('parentError');
+      const btn = document.getElementById('btnParentSubmit');
+      err.style.display = 'none';
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ جاري التحقق من سجلات ولي الأمر...</span>';
+
+      try {
+        const res = await EduFlow.loginParentAsync(email, pin);
+        if (res.success) {
+          window.location.href = 'parent.html';
+        } else {
+          err.innerText = '⚠️ ' + res.error;
+          err.style.display = 'block';
+        }
+      } catch (ex) {
+        err.innerText = '⚠️ تعذر تسجيل الدخول لولي الأمر.';
+        err.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>📊 الدخول لبوابة متابعة ولي الأمر</span>';
+      }
+    }
+
+    // 4. Teacher Login
+    function handleTeacherLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById('teacherPass').value.trim();
+      const err = document.getElementById('teacherError');
+      err.style.display = 'none';
+
+      const res = EduFlow.loginTeacher(pass);
+      if (res.success) {
+        window.location.href = 'dashboard.html';
+      } else {
+        err.innerText = '⚠️ ' + res.error;
+        err.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

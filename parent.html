@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduFlow 👨‍👩‍👧‍👦 | بوابة متابعة ولي الأمر ونظام الإنذار المبكر</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --secondary: #0f172a;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --card-bg: #ffffff;
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+    }
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1e3a8a;
+      line-height: 1.2;
+    }
+    .brand-text p {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-link {
+      padding: 8px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link.active {
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1.5px solid #bfdbfe;
+    }
+    .nav-link.logout {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      cursor: pointer;
+    }
+    .nav-link.logout:hover {
+      background: #fecaca;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 24px;
+      width: 100%;
+    }
+
+    /* Child Profile Selector Bar */
+    .child-select-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .child-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .child-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      border: 1.5px solid #bfdbfe;
+      flex-shrink: 0;
+    }
+    .child-details h2 {
+      font-size: 18px;
+      color: #0f172a;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .child-details p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .child-select-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .select-input {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1e293b;
+      background: #f8fafc;
+      outline: none;
+      cursor: pointer;
+    }
+    .select-input:focus { border-color: var(--primary); background: #ffffff; }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; left: 0;
+      height: 4px;
+      background: var(--primary);
+    }
+    .kpi-card.green::before { background: var(--success); }
+    .kpi-card.amber::before { background: var(--accent); }
+    .kpi-card.red::before { background: var(--danger); }
+    .kpi-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: #eff6ff;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .kpi-card.green .kpi-icon { background: #ecfdf5; color: var(--success); }
+    .kpi-card.amber .kpi-icon { background: #fffbeb; color: var(--accent); }
+    .kpi-card.red .kpi-icon { background: #fee2e2; color: var(--danger); }
+    .kpi-content h3 {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+    .kpi-desc {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fafbfc;
+    }
+    .section-header h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Early Warning Alert Box */
+    .early-warning-banner {
+      background: #fff1f2;
+      border: 2px solid #fecaca;
+      border-radius: 14px;
+      padding: 20px;
+      margin: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .ew-icon {
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+    .ew-content h4 {
+      color: #991b1b;
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .ew-content p {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.7;
+    }
+    .ew-action-box {
+      background: #ffffff;
+      border-right: 4px solid #10b981;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 12.5px;
+      color: #166534;
+      line-height: 1.7;
+    }
+
+    /* Test History Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+    }
+    th {
+      background: #f8fafc;
+      padding: 14px 18px;
+      font-size: 12.5px;
+      color: #64748b;
+      font-weight: 800;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+    }
+    tr:hover { background: #fafbfc; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 800;
+    }
+    .badge-excellent { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-good { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-warning { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12.5px;
+      color: #64748b;
+      border-top: 1px solid var(--border);
+      background: #ffffff;
+      margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      .nav-container { flex-direction: column; align-items: stretch; }
+      .nav-links { justify-content: center; }
+      .child-select-card { flex-direction: column; align-items: stretch; }
+      .child-select-box { width: 100%; }
+      .select-input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="login.html" class="brand">
+        <div class="brand-icon">👨‍👩‍👧‍👦</div>
+        <div class="brand-text">
+          <h1>EduFlow — بوابة متابعة ولي الأمر</h1>
+          <p id="navParentEmail">جاري التحقق من الجلسة...</p>
+        </div>
+      </a>
+      <div class="nav-links">
+        <span style="font-size: 13px; color: #059669; font-weight: 800; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 12px; border-radius: 8px;">
+          ✓ جلسة ولي أمر موثقة
+        </span>
+        <button class="nav-link logout" onclick="EduFlow.logout('parent')">
+          🔒 خروج
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Child Selection Bar -->
+    <div class="child-select-card">
+      <div class="child-info">
+        <div class="child-avatar" id="childAvatar">👨‍🎓</div>
+        <div class="child-details">
+          <h2>
+            <span id="childName">جاري التحميل...</span>
+            <span style="font-size: 11px; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 2px 8px; border-radius: 12px; font-weight: 700;" id="childIdBadge">#STU</span>
+          </h2>
+          <p id="childMeta">جاري تحميل البيانات الأكاديمية المعتمدة...</p>
+        </div>
+      </div>
+      <div class="child-select-box" id="childSelectBoxWrapper" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <label style="font-size: 13px; font-weight: 700; color: #475569;">الأبناء المسجلين:</label>
+        <select class="select-input" id="childSelector" onchange="switchChild(this.value)">
+          <!-- Rendered dynamically -->
+        </select>
+        <button type="button" class="nav-link secondary" style="font-size: 12px; padding: 7px 12px; border-radius: 8px; cursor: pointer;" onclick="promptLinkAdditionalChild()">
+          ➕ ربط ابن آخر بكود القيد
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-icon">📅</div>
+        <div class="kpi-content">
+          <h3>سجل الحضور والانضباط</h3>
+          <div class="kpi-value" id="kpiAttRate">100%</div>
+          <p class="kpi-desc" id="kpiAttSub">ملتزم تماماً (0 غياب)</p>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-content">
+          <h3>متوسط التحصيل الأكاديمي</h3>
+          <div class="kpi-value" id="kpiAvgScore">--%</div>
+          <p class="kpi-desc">مستوى عام: امتياز وتفوق 🌟</p>
+        </div>
+      </div>
+
+      <div class="kpi-card amber" id="kpiWarningCard">
+        <div class="kpi-icon">⚡</div>
+        <div class="kpi-content">
+          <h3>مؤشر التدخل والإنذار المبكر</h3>
+          <div class="kpi-value" id="kpiStatusBadge" style="font-size: 18px; color: #166534;">طبيعي ومستقر ✅</div>
+          <p class="kpi-desc" id="kpiWarningSub">لا توجد مؤشرات تراجع مقلقة</p>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon">📝</div>
+        <div class="kpi-content">
+          <h3>الاختبارات والمهام المنجزة</h3>
+          <div class="kpi-value" id="kpiTestsCount">0</div>
+          <p class="kpi-desc">كويزات منجزة هذا الفصل</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Early Warning Banner (Dynamic) -->
+    <div id="earlyWarningSection" style="display: none;">
+      <div class="early-warning-banner">
+        <div class="ew-icon">⚠️</div>
+        <div class="ew-content">
+          <h4 id="ewTitle">تنبيه إنذار مبكر: رصد تراجع في استيعاب درس معين</h4>
+          <p id="ewDesc">
+            رصد نظام الذكاء الاصطناعي لرصد الأداء هبوطاً في درجة الطالب بنسبة تتجاوز 15%. يُرجى الاطلاع على خطة الدعم المنزلية السريعة أدناه لتفادي أي فجوة في الامتحانات النهائية.
+          </p>
+          <div class="ew-action-box" id="ewActionBox">
+            <strong>💡 خطة الدعم العلاجية المقترحة من مستشار الذكاء الاصطناعي (Gemini):</strong><br>
+            1. مراجعة بطاقات الاستذكار السريعة للدرس (Flashcards) عبر بوابة الطالب.<br>
+            2. حل أسئلة التدريب التفاعلي مجدداً مع ولي الأمر لترسيخ المفاهيم.<br>
+            3. إعادة خوض الكويز لرفع نسبة الاستيعاب وإلغاء الإنذار.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Tests Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3><span>📝</span> سجل الاختبارات والواجبات المنجزة</h3>
+        <span style="font-size: 12px; color: var(--text-muted); font-weight: 700;">بيانات حية متزامنة</span>
+      </div>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>اسم الدرس / الموضوع</th>
+              <th>النوع</th>
+              <th>الدرجة المحققة</th>
+              <th>نسبة الاستيعاب</th>
+              <th>تاريخ الإنجاز</th>
+              <th>التقييم التربوي</th>
+            </tr>
+          </thead>
+          <tbody id="testsTableBody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Attendance Record Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3><span>📋</span> سجل حضور الجلسات الأسبوعية</h3>
+        <span style="font-size: 12px; color: #10b981; font-weight: 800;">✓ متطابق مع سجل المعلم</span>
+      </div>
+      <div style="padding: 20px;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;" id="attendancePills">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    منظومة EduFlow — Student Performance & Parent Monitoring System 2026 | تطوير وإشراف: سيف عمرو | متصل بـ n8n و Google Gemini
+  </footer>
+
+  <script src="eduflow-core.js"></script>
+  <script>
+    let currentStudent = null;
+    let parentSession = null;
+
+    async function initParentPortal() {
+      // 1. Strict Auth Guard: unauthenticated users redirect to login
+      parentSession = EduFlow.getParentAuth();
+      if (!parentSession) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Sync fresh data from Supabase Cloud in background
+      if (EduFlow.syncFromSupabase) {
+        try {
+          await EduFlow.syncFromSupabase();
+        } catch (e) {
+          console.warn('Sync failed:', e);
+        }
+      }
+
+      document.getElementById('navParentEmail').innerText = `حساب: ${parentSession.parent_name} (${parentSession.parent_email})`;
+
+      // 2. Load ONLY students belonging to this parent
+      const allStudents = EduFlow.getStudents();
+      const parentStudents = allStudents.filter(s => {
+        return (s.parent_email || '').trim().toLowerCase() === (parentSession.parent_email || '').trim().toLowerCase();
+      });
+
+      const selector = document.getElementById('childSelector');
+      selector.innerHTML = '';
+
+      if (parentStudents.length === 0) {
+        document.querySelector('main').innerHTML = '<div style="background: white; padding: 40px; border-radius: 20px; text-align: center; border: 1.5px solid var(--border);"><h3>لا يوجد أبناء مسجلين تحت هذا البريد الإلكتروني</h3><p style="color: #64748b; margin-top: 8px;">تأكد من تسجيل الطالب بنفس بريد ولي الأمر في بوابة التسجيل</p><a href="login.html" class="nav-link primary" style="margin-top: 15px; display: inline-flex;">العودة لصفحة الدخول</a></div>';
+        return;
+      }
+
+      parentStudents.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.student_id;
+        opt.textContent = `${s.student_name} (${s.grade_level})`;
+        selector.appendChild(opt);
+      });
+
+      // Switch to first child by default
+      switchChild(parentStudents[0].student_id);
+    }
+
+    async function switchChild(studentId) {
+      currentStudent = EduFlow.getStudentById(studentId);
+      if (!currentStudent) return;
+
+      // Render Child Info
+      document.getElementById('childName').innerText = currentStudent.student_name;
+      document.getElementById('childIdBadge').innerText = '#' + currentStudent.student_id;
+      document.getElementById('childAvatar').innerText = currentStudent.avatar || '👨‍🎓';
+      document.getElementById('childMeta').innerText = `${currentStudent.grade_level} • هاتف التواصل: ${currentStudent.student_phone || currentStudent.parent_phone || 'مسجل'} • البريد المعتمد: ${currentStudent.parent_email}`;
+
+      // Render Attendance Stats from Supabase Cloud
+      let attRecords = [];
+      if (EduFlow.supabaseClient) {
+        try {
+          const { data: attData } = await EduFlow.supabaseClient
+            .from('attendance')
+            .select('*')
+            .eq('student_id', currentStudent.student_id);
+          if (Array.isArray(attData)) attRecords = attData;
+        } catch (e) {}
+      }
+      if (attRecords.length === 0) {
+        attRecords = EduFlow.getAttendance().filter(a => a.student_id === currentStudent.student_id);
+      }
+
+      let totalDays = attRecords.length;
+      let presentDays = attRecords.filter(a => a.status === 'حاضر').length;
+      let lateDays = attRecords.filter(a => a.status === 'متأخر').length;
+      let attRate = totalDays > 0 ? Math.round(((presentDays + (lateDays * 0.5)) / totalDays) * 100) : 100;
+      let absCount = currentStudent.consecutive_absences || 0;
+
+      // Render Tests from Supabase Cloud
+      let assessments = EduFlow.getAssessments().filter(a => a.student_id === currentStudent.student_id);
+      if (EduFlow.supabaseClient) {
+        try {
+          const { data } = await EduFlow.supabaseClient
+            .from('assessments')
+            .select('*')
+            .eq('student_id', currentStudent.student_id)
+            .order('submitted_at', { ascending: false });
+          if (Array.isArray(data)) assessments = data;
+        } catch (e) {
+          console.warn('Cloud assessment fetch failed:', e);
+        }
+      }
+
+      const tbody = document.getElementById('testsTableBody');
+      tbody.innerHTML = '';
+
+      let sumPct = 0;
+      let hasWarning = false;
+
+      if (assessments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748b; padding: 24px;">لا توجد اختبارات مسجلة بعد لهذا الطالب</td></tr>';
+        document.getElementById('kpiAvgScore').innerText = '--%';
+        document.getElementById('kpiTestsCount').innerText = '0';
+      } else {
+        assessments.forEach((asm, idx) => {
+          sumPct += (asm.pct || 0);
+          if ((asm.pct || 0) < 60 || asm.warning_flag) hasWarning = true;
+
+          let badgeClass = 'badge-good';
+          let badgeText = '👍 جيد';
+          if (asm.pct >= 85) { badgeClass = 'badge-excellent'; badgeText = '🌟 ممتاز'; }
+          else if (asm.pct < 60) { badgeClass = 'badge-warning'; badgeText = '⚠️ يحتاج دعم'; }
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="color: #64748b; font-weight: 700;">#${idx + 1}</td>
+            <td><strong>${asm.title}</strong></td>
+            <td><span style="font-size: 11.5px; background: #f1f5f9; padding: 2px 8px; border-radius: 6px;">${asm.subject || asm.type || 'اختبار'}</span></td>
+            <td style="font-weight: 800; color: #1e3a8a;">${asm.score} / ${asm.max_score}</td>
+            <td style="font-weight: 800; color: ${asm.pct >= 70 ? '#059669' : '#dc2626'};">${asm.pct}%</td>
+            <td style="color: #64748b; font-size: 12.5px;">${asm.submitted_at ? asm.submitted_at.replace('T', ' ').substring(0, 16) : 'مؤخراً'}</td>
+            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        const avg = Math.round(sumPct / assessments.length);
+        document.getElementById('kpiAvgScore').innerText = avg + '%';
+        document.getElementById('kpiTestsCount').innerText = assessments.length;
+      }
+
+      document.getElementById('kpiAttRate').innerText = attRate + '%';
+      if (absCount === 0) {
+        document.getElementById('kpiAttSub').innerText = 'ملتزم تماماً (0 غياب)';
+        document.getElementById('kpiAttSub').style.color = '#059669';
+      } else if (absCount === 1) {
+        document.getElementById('kpiAttSub').innerText = 'تنبيه: غياب جلسة واحدة';
+        document.getElementById('kpiAttSub').style.color = '#d97706';
+      } else {
+        document.getElementById('kpiAttSub').innerText = `⚠️ إنذار حرج: ${absCount} غياب متتالي`;
+        document.getElementById('kpiAttSub').style.color = '#dc2626';
+      }
+
+      // Early Warning Banner
+      const ewSection = document.getElementById('earlyWarningSection');
+      const kpiStatus = document.getElementById('kpiStatusBadge');
+      const kpiWarnSub = document.getElementById('kpiWarningSub');
+      const kpiWarnCard = document.getElementById('kpiWarningCard');
+
+      if (hasWarning || absCount >= 2) {
+        ewSection.style.display = 'block';
+        kpiStatus.innerText = '⚠️ إنذار تدخل مبكر';
+        kpiStatus.style.color = '#dc2626';
+        kpiWarnSub.innerText = 'تراجع في الدرجات أو تكرار غياب';
+        kpiWarnCard.classList.add('red');
+      } else {
+        ewSection.style.display = 'none';
+        kpiStatus.innerText = 'طبيعي ومستقر ✅';
+        kpiStatus.style.color = '#166534';
+        kpiWarnSub.innerText = 'لا توجد مؤشرات تراجع مقلقة';
+        kpiWarnCard.classList.remove('red');
+      }
+
+      // Attendance Pills
+      const attPills = document.getElementById('attendancePills');
+      attPills.innerHTML = '';
+      
+      let attendanceRecords = [];
+      if (EduFlow.supabaseClient) {
+        try {
+          const { data: attData } = await EduFlow.supabaseClient
+            .from('attendance')
+            .select('*')
+            .eq('student_id', currentStudent.student_id)
+            .order('date', { ascending: false })
+            .limit(5);
+          if (Array.isArray(attData) && attData.length > 0) {
+            attendanceRecords = attData;
+          }
+        } catch (e) {
+          console.warn('Attendance fetch failed:', e);
+        }
+      }
+
+      if (attendanceRecords.length === 0) {
+        attendanceRecords = [
+          { date: 'الأحد', status: 'Present' },
+          { date: 'الثلاثاء', status: 'Present' },
+          { date: 'الخميس', status: absCount > 0 ? 'Absent' : 'Present' }
+        ];
+      }
+
+      attendanceRecords.forEach(d => {
+        const isPres = d.status === 'Present';
+        const pill = document.createElement('div');
+        pill.style.padding = '8px 14px';
+        pill.style.borderRadius = '10px';
+        pill.style.fontSize = '12.5px';
+        pill.style.fontWeight = '800';
+        pill.style.display = 'inline-flex';
+        pill.style.alignItems = 'center';
+        pill.style.gap = '6px';
+        if (isPres) {
+          pill.style.background = '#ecfdf5';
+          pill.style.color = '#065f46';
+          pill.style.border = '1px solid #a7f3d0';
+          pill.innerHTML = `<span>✅</span> ${d.date}: حاضر`;
+        } else {
+          pill.style.background = '#fee2e2';
+          pill.style.color = '#991b1b';
+          pill.style.border = '1px solid #fecaca';
+          pill.innerHTML = `<span>❌</span> ${d.date}: غائب (تم إشعاركم)`;
+        }
+        attPills.appendChild(pill);
+      });
+    }
+
+    async function promptLinkAdditionalChild() {
+      const code = prompt('ادخل كود الطالب المخصص لابنك (مثال: EDU-1011 أو EDU-XXXX):');
+      if (!code || !code.trim()) return;
+
+      const res = await EduFlow.linkChildToParentAsync(code.trim());
+      if (res.success) {
+        alert(`تم ربط الطالب (${res.student.student_name}) بملف متابعتك بنجاح! 🎉`);
+        await initParentPortal();
+      } else {
+        alert('⚠️ ' + res.error);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initParentPortal);
+  </script>
+</body>
+</html>

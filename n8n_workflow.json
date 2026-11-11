@@ -1,0 +1,1052 @@
+[
+  {
+    "updatedAt": "2026-10-17T19:02:11.277Z",
+    "createdAt": "2026-10-16T21:16:42.339Z",
+    "id": "RLgXc6LtwgeysP0m",
+    "name": "EduFlow — Student Performance & Parent Monitoring System",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=أنت خبير تربوي ومطور واجهات تفاعلية رائد في منظومة EduFlow للتعليم الذكي.\nالموضوع: {{ $('Webhook').item.json.query.lesson || 'درس نموذجي' }}\nالصف: {{ $('Webhook').item.json.query.grade || 'المرحلة الإعدادية' }}\nمستوى الصعوبة: {{ $('Webhook').item.json.query.difficulty || 'متوسط متوازن' }}\nعدد أسئلة الاختبار: {{ $('Webhook').item.json.query.questions_count || '5' }} سؤال\nالطالب النشط: {{ $('Webhook').item.json.query.student_name || 'طالب EduFlow المعتمد' }}\nبريد ولي الأمر المعتمد: {{ $('Webhook').item.json.query.parent_email || 'seifamrmohsen2005@gmail.com' }}\n\nالمطلوب:\nأنشئ كود صفحة ويب تفاعلية فائقة الجمال والاحترافية باللغة العربية (HTML, CSS, JavaScript) بدون أي علامات ماركداون (لا تكتب ```html ولا أي نص قبله أو بعده). ابدأ مباشرة بـ <div class=\"edu-platform\"> وأنهِ بـ </div> مع الـ <style> والـ <script> داخلهما.\n\nالمواصفات الجمالية والتقنية:\n1. التصميم: Modern Luxury Card UI، خط Cairo، ألوان متناسقة وعصرية (درجات الأزرق الملكي #1e3a8a و #2563eb، الكحلي، والزمردي)، ظلال ناعمة (soft shadows)، وتوافق تام مع الموبايل والكمبيوتر.\n2. التبويبات التفاعلية (Tabs):\n   - تبويب 1: 📖 [ملخص وشرح الدرس]:\n     * ملخص ذكي لأهم النقاط والقواعد والمفاهيم.\n     * أمثلة توضيحية منسقة ببطاقات مرئية ملونة.\n     * جدول أو قائمة بأهم الكلمات المفتاحية/المصطلحات.\n   - تبويب 2: 🗂️ [بطاقات الاستذكار السريع - Flashcards]:\n     * 4 بطاقات تعليمية ذكية تفاعلية تقلب عند الضغط (3D Flip Effect).\n     * الوجه الأمامي: سؤال أو مفهوم رئيسي مع أيقونة جذابة.\n     * الوجه الخلفي: الشرح والإجابة النموذجية مع تلميح ذهبي.\n   - تبويب 3: 📝 [الاختبار التفاعلي الذكي - Quiz]:\n     * {{ $('Webhook').item.json.query.questions_count || '5' }} أسئلة اختيار من متعدد متدرجة ومحكمة عن الموضوع.\n     * شريط تقدم يوضح رقم السؤال ونسبة الإنجاز (Progress bar).\n     * عند اختيار إجابة، تلوين فوري (أخضر للإجابة الصحيحة، أحمر للخطأ) مع إظهار صندوق تفسير فوري يشرح سبب صحة الإجابة.\n     * أصوات تفاعلية ناعمة عند الإجابة باستخدام Web Audio API (بدون ملفات خارجية).\n     * عند إتمام جميع الأسئلة:\n       - شاشة النتيجة النهائية بنسبة مئوية ورسالة تقدير حسب المستوى.\n       - إطلاق احتفال كونفيتي فخم (Confetti) يملأ الشاشة إذا حقق الطالب 75% فأكثر.\n       - بطاقة تسجيل النتيجة المعتمدة:\n         * ملاحظة هامة جداً: الطالب لا يُطلب منه إدخال إيميل ولي أمره يدوياً أبداً! البيانات مسحوبة آلياً من سجلات EduFlow الرسمية.\n         * يظهر في شاشة النتيجة كارت معتمد أخضر أنيق:\n           \"🔒 الحساب المعتمد: {{ $('Webhook').item.json.query.student_name || 'الطالب المسجل' }} | البريد المعتمد لولي الأمر: {{ $('Webhook').item.json.query.parent_email || 'seifamrmohsen2005@gmail.com' }}\"\n         * زر بارز: \"حفظ النتيجة في سجل المدرس وإرسال التقرير لولي الأمر فوراً ✨\".\n         * عند الضغط عليه، يتم استدعاء الكود التالي:\n           fetch('http://localhost:5678/webhook/submit-score', {\n             method: 'POST',\n             headers: { 'Content-Type': 'application/json' },\n             body: JSON.stringify({\n               student_name: '{{ $('Webhook').item.json.query.student_name || \"طالب مسجل\" }}',\n               parent_email: '{{ $('Webhook').item.json.query.parent_email || \"seifamrmohsen2005@gmail.com\" }}',\n               grade: '{{ $('Webhook').item.json.query.grade || \"المرحلة الإعدادية\" }}',\n               lesson: '{{ $('Webhook').item.json.query.lesson || \"درس نموذجي\" }}',\n               score: الدرجة_المحققة + ' / ' + '{{ $('Webhook').item.json.query.questions_count || \"5\" }}'\n             })\n           }).then(function() {\n             alert('✅ تم حفظ درجتك رسمياً في سجلات EduFlow وجاري تسليم التقرير لولي أمرك عبر Gmail!');\n             var totalQ = parseInt('{{ $('Webhook').item.json.query.questions_count || \"5\" }}', 10);\n             if ((الدرجة_المحققة / totalQ) >= 0.75 && window.showCertificate) {\n               window.showCertificate('{{ $('Webhook').item.json.query.student_name || \"طالب مسجل\" }}', الدرجة_المحققة + ' من ' + totalQ);\n             }\n           });\n   - تبويب 4: 🏆 [شهادة التفوق الذكية - Certificate]:\n     * شهادة تقدير عربية رسمية فخمة للغاية بإطار كلاسيكي مزخرف وختم ذهبي باسم المنصة EduFlow.\n     * يظهر فيها اسم الطالب: {{ $('Webhook').item.json.query.student_name || 'طالب مسجل' }}، اسم الدرس، والصف الدراسي، والدرجة المحققة.\n     * زر: \"🖨️ طباعة أو تحميل الشهادة كـ PDF\".\n\nتأكد أن الكود كامل وشغال بنسبة 100% بدون أي مكتبات ناقصة، وجاهز للعمل مباشرة.",
+          "messages": {
+            "messageValues": []
+          },
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          224,
+          0
+        ],
+        "id": "a91be37b-3766-42f3-ba5e-8d17bcf9d07d",
+        "name": "Basic LLM Chain"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1.1,
+        "position": [
+          160,
+          208
+        ],
+        "id": "5be25ea7-ddf4-470a-9b23-55bb9e1c4ee6",
+        "name": "Google Gemini Chat Model",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "7HdkQ33dPee3O0UP",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "path": "generate",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -32,
+          0
+        ],
+        "id": "32d949b2-f624-46c9-93f7-b9b3512b5ed1",
+        "name": "Webhook",
+        "webhookId": "b72e67e4-a23c-4f32-b48c-e8039f67f148"
+      },
+      {
+        "parameters": {
+          "respondWith": "text",
+          "responseBody": "=<!DOCTYPE html>\n<html lang=\"ar\" dir=\"rtl\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>منصة التعليم والتقييم الذكي | {{ $('Webhook').item.json.query.lesson || 'الدرس التفاعلي' }}</title>\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap\" rel=\"stylesheet\">\n  <script src=\"https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js\"></script>\n  <style>\n    :root {\n      --primary: #2563eb;\n      --primary-dark: #1d4ed8;\n      --primary-light: #eff6ff;\n      --accent: #f59e0b;\n      --success: #10b981;\n      --danger: #ef4444;\n      --text-main: #1e293b;\n      --text-muted: #64748b;\n      --bg: #f8fafc;\n    }\n    * { box-sizing: border-box; }\n    body {\n      font-family: 'Cairo', sans-serif;\n      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);\n      color: var(--text-main);\n      padding: 20px;\n      margin: 0;\n      min-height: 100vh;\n    }\n    .main-wrapper {\n      max-width: 950px;\n      margin: 0 auto;\n      background: #ffffff;\n      padding: 30px;\n      border-radius: 20px;\n      box-shadow: 0 15px 35px rgba(30, 58, 138, 0.08);\n      position: relative;\n    }\n    .top-bar {\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n      border-bottom: 2px solid #f1f5f9;\n      padding-bottom: 18px;\n      margin-bottom: 25px;\n      flex-wrap: wrap;\n      gap: 12px;\n    }\n    .platform-brand {\n      display: flex;\n      align-items: center;\n      gap: 12px;\n    }\n    .platform-logo {\n      width: 44px;\n      height: 44px;\n      background: linear-gradient(135deg, #2563eb, #1e40af);\n      color: white;\n      border-radius: 12px;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      font-size: 22px;\n      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);\n    }\n    .platform-title h1 {\n      font-size: 20px;\n      margin: 0;\n      color: #1e3a8a;\n      font-weight: 800;\n    }\n    .platform-title p {\n      font-size: 13px;\n      margin: 2px 0 0;\n      color: var(--text-muted);\n    }\n    .nav-actions {\n      display: flex;\n      gap: 10px;\n    }\n    .btn-action {\n      padding: 8px 16px;\n      border-radius: 10px;\n      font-family: inherit;\n      font-weight: 700;\n      font-size: 13px;\n      cursor: pointer;\n      text-decoration: none;\n      display: inline-flex;\n      align-items: center;\n      gap: 6px;\n      transition: all 0.2s ease;\n      border: 1px solid #cbd5e1;\n      background: white;\n      color: #334155;\n    }\n    .btn-action:hover {\n      background: #f8fafc;\n      border-color: #94a3b8;\n    }\n    .btn-home {\n      background: var(--primary);\n      color: white;\n      border-color: var(--primary);\n    }\n    .btn-home:hover {\n      background: var(--primary-dark);\n      color: white;\n    }\n    @media print {\n      body { background: white; padding: 0; }\n      .top-bar, .btn-action { display: none !important; }\n      .main-wrapper { box-shadow: none; padding: 0; }\n    }\n  </style>\n</head>\n<body>\n  <div class=\"main-wrapper\">\n    <div class=\"top-bar\">\n      <div class=\"platform-brand\">\n        <div class=\"platform-logo\">🎓</div>\n        <div class=\"platform-title\">\n          <h1>منصة رواد التعليمية الذكية</h1>\n          <p>درس: {{ $('Webhook').item.json.query.lesson || 'درس نموذجي' }} | {{ $('Webhook').item.json.query.grade || 'المرحلة الإعدادية' }}</p>\n        </div>\n      </div>\n      <div class=\"nav-actions\">\n        <a href=\"http://localhost:5678/webhook/generate?lesson={{ $('Webhook').item.json.query.lesson }}&grade={{ $('Webhook').item.json.query.grade }}&questions_count={{ $('Webhook').item.json.query.questions_count || '5' }}\" class=\"btn-action\" title=\"توليد محتوى جديد\">🔄 إعادة التوليد</a>\n        <button class=\"btn-action\" onclick=\"window.print()\">🖨️ طباعة كـ PDF</button>\n      </div>\n    </div>\n\n    {{ $json.text }}\n\n  </div>\n</body>\n</html>",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          592,
+          0
+        ],
+        "id": "f8059fcc-a9fa-4ca4-88c4-71cca5b3233e",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "submit-score",
+          "options": {
+            "allowedOrigins": "*"
+          }
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          112,
+          -288
+        ],
+        "id": "8b88be81-3ab0-4275-b3cf-82a221cf6894",
+        "name": "Webhook1",
+        "webhookId": "e25e86b2-ade1-4ded-a4cc-04b61fc138d4"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw",
+            "mode": "list",
+            "cachedResultName": "سجل درجات الطلاب - المساعد الذكي",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "اسم الطالب": "={{ $json.body.student_name }}",
+              "الصف الدراسي": "={{ $json.body.grade }}",
+              "اسم الدرس": "={{ $json.body.lesson }}",
+              "الدرجة": "={{ $json.body.score }}",
+              "تاريخ الحل": "={{ $now.format('yyyy-MM-dd HH:mm') }}",
+              "إيميل ولي الأمر": "={{ $json.body.parent_email }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "اسم الطالب",
+                "displayName": "اسم الطالب",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "الصف الدراسي",
+                "displayName": "الصف الدراسي",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "اسم الدرس",
+                "displayName": "اسم الدرس",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "الدرجة",
+                "displayName": "الدرجة",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "تاريخ الحل",
+                "displayName": "تاريخ الحل",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "إيميل ولي الأمر",
+                "displayName": "إيميل ولي الأمر",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "حالة الإرسال",
+                "displayName": "حالة الإرسال",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          336,
+          -288
+        ],
+        "id": "dbe5cc95-dced-4412-84fc-e7f11afc6a03",
+        "name": "Append row in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cL4AmApUxFm8H4LC",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {}
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.4,
+        "position": [
+          -48,
+          -544
+        ],
+        "id": "87a8d16e-0511-471e-8c43-ccb8cdbbf687",
+        "name": "Schedule Trigger"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw",
+            "mode": "list",
+            "cachedResultName": "سجل درجات الطلاب - المساعد الذكي",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw/edit#gid=0"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          176,
+          -544
+        ],
+        "id": "756066bb-2708-44de-8d9c-a338646d4d20",
+        "name": "Get row(s) in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cL4AmApUxFm8H4LC",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=أنت مستشار تربوي وأكاديمي متميز في منظومة EduFlow للتعليم الذكي ومحرك التدخل الأكاديمي المبكر.\n\nبيانات الطالب والتقييم:\n- اسم الطالب: {{ $json['اسم الطالب'] }}\n- الصف الدراسي: {{ $json['الصف الدراسي'] }}\n- الدرس المنجز: {{ $json['اسم الدرس'] }}\n- الدرجة الحالية: {{ $json['الدرجة'] }} (نسبة الاستيعاب: {{ $json.current_pct }}%)\n- تاريخ الحل: {{ $json['تاريخ الحل'] }}\n- حالة التقييم الأكاديمي: {{ $json.is_early_warning ? '⚠️ رصد تراجع حرج في الأداء بنسبة ' + $json.drop_pct + '% مقارنة بالمستوى السابق' : 'أداء أكاديمي طبيعي أو متفوق' }}\n\nالمطلوب:\nصياغة رسالة بريد إلكتروني راقية ومؤثرة لولي الأمر باللغة العربية الفصحى، بصيغة كود HTML أنيق (Email Card) جاهز للإرسال عبر البريد الإلكتروني.\nالمهم جداً: اكتب كود الـ HTML المنسق فقط مباشرة بدون أي مقدمات أو علامات ماركداون (لا تكتب ```html).\n\n{{ $json.is_early_warning ? \n'المواصفات المطلوبة لحالة الإنذار الأكاديمي المبكر (خطة تدخل تشخيصية):\n1. تصميم الكارت: خلفية بيضاء نقية، إطار أحمر/عنبري بارز (#ef4444 أو #f59e0b) مع شارة حمراء علوية بعنوان \"⚠️ منظومة EduFlow - تقرير تشخيصي عاجل وخطة دعم أكاديمي\".\n2. بطاقة الأداء الحرج: إظهار اسم الطالب، الدرس، والدرجة، مع توضيح نسبة الهبوط المسجلة (' + $json.drop_pct + '% تراجع عن المستوى المعهود).\n3. التشخيص التربوي الموضوعي: إيصال رسالة مطمئنة وغير محبطة للطالب، ولكن صريحة مع ولي الأمر بأن درس (' + $json['اسم الدرس'] + ') واجه فيه الطالب صعوبة تحتاج تدخلاً سريعاً قبل تراكم المنهج.\n4. خطة التدخل العلاجية العاجلة (3 خطوات عملية واضحة لولي الأمر):\n   - الخطوة 1: استعراض بطاقات الاستذكار السريعة (Flashcards) الخاصة بالدرس عبر بوابة EduFlow لترسيخ المفاهيم الغائبة.\n   - الخطوة 2: مراجعة الأسئلة الخاطئة وحلها مع ولي الأمر خطوة بخطوة.\n   - الخطوة 3: أداء جلسة إعادة اختبار تفاعلي عبر المنصة لتعديل النتيجة واستعادة الثقة.\n5. توقيع الإدارة: \"معاً نحو استعادة التفوق والريادة، إدارة التدخل الأكاديمي والإنذار المبكر - منظومة EduFlow (seifamrmohsen2005@gmail.com)\".'\n:\n'المواصفات المطلوبة لحالة الأداء الطبيعي أو المتفوق:\n1. تصميم الكارت: إطار أزرق ملكي وظل ناعم وخلفية بيضاء وترويسة بعنوان \"منظومة EduFlow 🎓 - تقرير الأداء الأكاديمي الأسبوعي\".\n2. بطاقة النتيجة: إظهار اسم الطالب، اسم الدرس، والدرجة مع شريط تقييم مميز ورسالة تقدير للمستوى.\n3. نص التقرير التربوي: تحية كريمة لولي الأمر، إشادة بجهد الطالب واجتهاده، وتوصيات سريعة للحفاظ على المستوى.\n4. توقيع الإدارة: \"مع أطيب تمنياتنا بالتفوق المستمر، إدارة منظومة EduFlow للتعليم الذكي\".'\n}}",
+          "batching": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.chainLlm",
+        "typeVersion": 1.9,
+        "position": [
+          800,
+          -608
+        ],
+        "id": "062413fe-a5a4-4a44-8923-61100a99711a",
+        "name": "Basic LLM Chain1"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+        "typeVersion": 1.1,
+        "position": [
+          800,
+          -432
+        ],
+        "id": "6431b836-5b4d-41c3-b2c5-b4480d54b431",
+        "name": "Google Gemini Chat Model1",
+        "credentials": {
+          "googlePalmApi": {
+            "id": "7HdkQ33dPee3O0UP",
+            "name": "Google Gemini(PaLM) Api account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $('Get row(s) in sheet').item.json['إيميل ولي الأمر'] }}",
+          "subject": "={{ $json.is_early_warning ? '⚠️ تقرير تشخيصي عاجل وخطة دعم أكاديمي - تراجع أداء: ' + $json['اسم الطالب'] : 'تقرير متابعة الأداء الأكاديمي للطالب: ' + $json['اسم الطالب'] }}",
+          "message": "={{ $json.text.replace(/^```html\\s*/i, '').replace(/```\\s*$/i, '') }}",
+          "options": {},
+          "emailType": "html"
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          1080,
+          -608
+        ],
+        "id": "c09a1a56-b0e9-4c2e-9dc1-b1304951e59b",
+        "name": "Send a message",
+        "webhookId": "202720f2-8841-4d76-9aee-4c98ed54b558",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "41qkSwppVhhyJmje",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "80daf21b-4d90-4d4c-a59f-0a9f687f1de2",
+                "leftValue": "={{ $json['حالة الإرسال'] }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "empty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.3,
+        "position": [
+          400,
+          -544
+        ],
+        "id": "975f2ae1-5826-4610-9643-08f8e8177877",
+        "name": "Filter"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw",
+            "mode": "list",
+            "cachedResultName": "سجل درجات الطلاب - المساعد الذكي",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+              "حالة الإرسال": "={{ $json.is_early_warning ? 'تم إرسال إنذار مبكر (تراجع ' + $json.drop_pct + '%)' : 'تم الإرسال لولي الأمر' }}"
+            },
+            "matchingColumns": [
+              "row_number"
+            ],
+            "schema": [
+              {
+                "id": "اسم الطالب",
+                "displayName": "اسم الطالب",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "الصف الدراسي",
+                "displayName": "الصف الدراسي",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "اسم الدرس",
+                "displayName": "اسم الدرس",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "الدرجة",
+                "displayName": "الدرجة",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "تاريخ الحل",
+                "displayName": "تاريخ الحل",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "إيميل ولي الأمر",
+                "displayName": "إيميل ولي الأمر",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "حالة الإرسال",
+                "displayName": "حالة الإرسال",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1320,
+          -608
+        ],
+        "id": "e3cb9234-0cf8-4c1f-9d4d-76d305fa2509",
+        "name": "Update row in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cL4AmApUxFm8H4LC",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "GET",
+          "path": "students",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": "*"
+          }
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -48,
+          -800
+        ],
+        "id": "e512401f-0b32-4781-a796-f3508ebf74cb",
+        "name": "Webhook - Get Students",
+        "webhookId": "9e3c9884-60c7-43cf-87b6-c560cf835331"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw",
+            "mode": "list",
+            "cachedResultName": "سجل درجات الطلاب - المساعد الذكي",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Sheet1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Am-FefdctyJQRRlfUJ-hRQPLcgketYtxNUY0MmADarw/edit#gid=0"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          200,
+          -800
+        ],
+        "id": "b64efca8-5c4b-4b2a-89a5-71bbd0c5a2c1",
+        "name": "Fetch Students from Sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "cL4AmApUxFm8H4LC",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          450,
+          -800
+        ],
+        "id": "c71a3964-bce2-4753-b26a-9b51faee7792",
+        "name": "Respond with Students"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "attendance",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": "*"
+          }
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -48,
+          400
+        ],
+        "id": "a1f948b2-7312-4eb1-9988-821b0d749912",
+        "name": "Webhook - Attendance",
+        "webhookId": "attendance-webhook-eduflow-2026"
+      },
+      {
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "const payload = $input.item.json.body || $input.item.json;\nconst session_date = payload.session_date || new Date().toISOString().split('T')[0];\nconst records = Array.isArray(payload.records) ? payload.records : [payload];\n\nconst outputItems = [];\n\nfor (const rec of records) {\n  const student_name = rec.student_name || 'طالب';\n  const grade = rec.grade || 'المرحلة الإعدادية';\n  const parent_email = (rec.parent_email || '').trim();\n  const status = rec.status || 'Present';\n  const prev_absences = parseInt(rec.previous_absences || 0, 10);\n  \n  let consecutive_absences = 0;\n  let warning_flag = false;\n  let email_subject = '';\n  let email_html = '';\n  \n  if (status === 'Absent' || status === 'غائب') {\n    consecutive_absences = prev_absences + 1;\n    if (consecutive_absences >= 2 && parent_email.includes('@')) {\n      warning_flag = true;\n      email_subject = '⚠️ إنذار غياب رسمي عاجل - منظومة EduFlow: الطالب ' + student_name;\n      email_html = '<!DOCTYPE html>' +\n      '<html lang=\"ar\" dir=\"rtl\">' +\n      '<head><meta charset=\"UTF-8\"><style>' +\n      'body { font-family: Segoe UI, Tahoma, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b; direction: rtl; }' +\n      '.card { max-width: 600px; margin: auto; background: #ffffff; border-radius: 16px; border: 2px solid #ef4444; padding: 28px; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.12); }' +\n      '.header { text-align: center; border-bottom: 2px solid #fee2e2; padding-bottom: 16px; margin-bottom: 20px; }' +\n      '.alert-badge { display: inline-block; background: #fee2e2; color: #991b1b; padding: 6px 18px; border-radius: 20px; font-weight: 800; font-size: 14px; margin-bottom: 10px; border: 1px solid #fecaca; }' +\n      '.details-box { background: #fff1f2; border-right: 4px solid #ef4444; padding: 16px 20px; border-radius: 8px; margin: 18px 0; line-height: 1.8; }' +\n      '.warning-text { font-size: 15px; line-height: 1.7; color: #334155; }' +\n      '.action-box { background: #f0fdf4; border: 1.5px solid #86efac; padding: 14px 18px; border-radius: 8px; margin-top: 20px; color: #166534; font-size: 14.5px; }' +\n      '.footer { text-align: center; margin-top: 24px; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 14px; }' +\n      '</style></head>' +\n      '<body>' +\n      '<div class=\"card\">' +\n      '<div class=\"header\">' +\n      '<div class=\"alert-badge\">⚠️ إنذار رسمي لتجاوز حد الغياب المسموح</div>' +\n      '<h2 style=\"color: #991b1b; margin: 0;\">منظومة EduFlow — المتابعة الأكاديمية والإنذار المبكر</h2>' +\n      '</div>' +\n      '<p class=\"warning-text\">السيد / ولي أمر الطالب الكريم،،<br>تحية طيبة وبعد،،</p>' +\n      '<div class=\"details-box\">' +\n      '<strong style=\"color: #991b1b; font-size: 15px;\">📌 بيانات الطالب وسجل الغياب:</strong><br>' +\n      '• <strong>اسم الطالب:</strong> ' + student_name + '<br>' +\n      '• <strong>الصف الدراسي:</strong> ' + grade + '<br>' +\n      '• <strong>تاريخ رصد الغياب:</strong> ' + session_date + '<br>' +\n      '• <strong>عدد مرات الغياب المتتالية:</strong> <span style=\"color: #b91c1c; font-weight: 900; font-size: 16px;\">' + consecutive_absences + ' مرات</span>' +\n      '</div>' +\n      '<p class=\"warning-text\">' +\n      'نحيطكم علماً بأن نجلكم/ابنتكم قد وصل إلى الحد الحرج لتكرار الغياب المتتالي عن الحصص والمتابعات التعليمية.<br>' +\n      'إن استمرار الغياب ينعكس سلباً على التحصيل الدراسي ويُعرّض الطالب لفقدان درجات أعمال السنة المقررة في المنظومة.' +\n      '</p>' +\n      '<div class=\"action-box\">' +\n      '<strong>💡 الإجراء المطلوب فوراً من ولي الأمر:</strong><br>' +\n      'يرجى التواصل المباشر مع إدارة المعلم لتوضيح سبب الغياب، والتأكد من مراجعة ملخصات الدروس والاختبارات التفاعلية المتاحة عبر المنصة لتعويض ما فات الطالب بأسرع وقت.' +\n      '</div>' +\n      '<div class=\"footer\">' +\n      'تم إرسال هذا الإشعار تلقائياً عبر نظام <strong>EduFlow</strong> للإنذار المبكر ومراقبة الأداء<br>' +\n      'البريد الأكاديمي المعتمد: seifamrmohsen2005@gmail.com' +\n      '</div>' +\n      '</div></body></html>';\n    }\n  } else {\n    consecutive_absences = 0;\n  }\n  \n  outputItems.push({\n    json: {\n      student_name,\n      grade,\n      parent_email,\n      session_date,\n      status,\n      consecutive_absences,\n      warning_flag,\n      email_subject,\n      email_html\n    }\n  });\n}\n\nreturn outputItems;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          200,
+          400
+        ],
+        "id": "b3e811c4-9844-46b5-90a1-77b31d2d09aa",
+        "name": "Process Attendance & Check Warnings"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\n  \"success\": true,\n  \"message\": \"تم تسجيل الحضور بنجاح ومعالجة تنبيهات الغياب\",\n  \"timestamp\": new Date().toISOString()\n}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          480,
+          300
+        ],
+        "id": "c9284fa1-d41a-428a-81a9-b68e9102c91a",
+        "name": "Respond to Attendance Webhook"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "cond-warn-flag",
+                "leftValue": "={{ $json.warning_flag }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.filter",
+        "typeVersion": 2.3,
+        "position": [
+          480,
+          500
+        ],
+        "id": "d1a89c31-77a2-4a0b-8d19-4a9c67bc1122",
+        "name": "Filter Attendance Warnings"
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $json.parent_email }}",
+          "subject": "={{ $json.email_subject }}",
+          "message": "={{ $json.email_html }}",
+          "options": {},
+          "emailType": "html"
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          750,
+          500
+        ],
+        "id": "e8a9310c-99a2-4c22-b891-66778899aabb",
+        "name": "Send Attendance Alert Email",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "41qkSwppVhhyJmje",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "// Input items are unsent rows\nlet allRows = [];\ntry {\n  allRows = $('Get row(s) in sheet').all().map(i => i.json);\n} catch (e) {\n  allRows = $input.all().map(i => i.json);\n}\n\nfor (const item of $input.all()) {\n  const studentName = (item.json['اسم الطالب'] || '').trim();\n  const rawScore = item.json['الدرجة'] || '';\n  \n  // Helper to parse score percentage\n  let currentPct = 50;\n  const match = String(rawScore).match(/^(\\d+)\\s*(?:\\/|من)\\s*(\\d+)/);\n  if (match) {\n    const s = parseInt(match[1], 10);\n    const t = parseInt(match[2], 10) || 5;\n    currentPct = Math.round((s / t) * 100);\n  } else {\n    const n = parseInt(rawScore, 10);\n    if (!isNaN(n)) currentPct = n > 5 ? n * 10 : n * 20;\n  }\n  \n  // Find other previous tests for this student\n  const studentHistory = allRows.filter(r => \n    (r['اسم الطالب'] || '').trim() === studentName && \n    r.row_number !== item.json.row_number &&\n    r['الدرجة']\n  );\n  \n  let previousPct = 75; // baseline expectation\n  let hasHistory = false;\n  if (studentHistory.length > 0) {\n    let sum = 0;\n    studentHistory.forEach(r => {\n      const rm = String(r['الدرجة']).match(/^(\\d+)\\s*(?:\\/|من)\\s*(\\d+)/);\n      if (rm) sum += Math.round((parseInt(rm[1], 10) / (parseInt(rm[2], 10) || 5)) * 100);\n      else sum += 75;\n    });\n    previousPct = Math.round(sum / studentHistory.length);\n    hasHistory = true;\n  }\n  \n  const dropPct = previousPct - currentPct;\n  // Milestone Spec: \"Gemini analyzes grade drop trends (>15%)\"\n  const isEarlyWarning = (dropPct >= 15) || (currentPct < 50);\n  \n  item.json.current_pct = currentPct;\n  item.json.previous_pct = previousPct;\n  item.json.drop_pct = Math.max(0, dropPct);\n  item.json.is_early_warning = isEarlyWarning;\n  item.json.alert_type = isEarlyWarning ? 'GRADE_DROP_WARNING' : 'STANDARD_REPORT';\n}\n\nreturn $input.all();"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          580,
+          -544
+        ],
+        "id": "f4a1990c-1b77-4ee2-9654-718293aabbcc",
+        "name": "Detect Academic Early Warnings (>15% Drop)"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "reminders",
+          "responseMode": "responseNode",
+          "options": {
+            "allowedOrigins": "*"
+          }
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -48,
+          800
+        ],
+        "id": "d9e8301a-88bc-4ef1-9922-112233445566",
+        "name": "Webhook - Deadline Reminders",
+        "webhookId": "reminders-webhook-eduflow-2026"
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {}
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.4,
+        "position": [
+          -48,
+          1000
+        ],
+        "id": "e1a2b3c4-9988-4455-6677-889900aabbcc",
+        "name": "Daily Schedule Trigger (Reminders)"
+      },
+      {
+        "parameters": {
+          "language": "javaScript",
+          "jsCode": "const payload = $input.item.json.body || $input.item.json || {};\nconst customTask = payload.task_title || 'التدريبات والواجب الأسبوعي لمنظومة EduFlow';\nconst deadlineText = payload.deadline_text || 'خلال 24 ساعة القادمة';\n\nlet pendingList = Array.isArray(payload.pending_students) ? payload.pending_students : [];\n\nif (pendingList.length === 0) {\n  pendingList = [\n    { student_name: 'عمر خالد الصاوي', grade: 'الثاني الإعدادي', parent_email: 'seifamrmohsen2005@gmail.com', task_title: customTask },\n    { student_name: 'يوسف كريم عبد الله', grade: 'الثالث الإعدادي', parent_email: 'seifamrmohsen2005@gmail.com', task_title: customTask }\n  ];\n}\n\nconst outputItems = [];\n\nfor (const student of pendingList) {\n  const name = student.student_name || 'طالب';\n  const grade = student.grade || 'المرحلة الإعدادية';\n  const email = (student.parent_email || '').trim();\n  const task = student.task_title || customTask;\n  \n  if (email && email.includes('@')) {\n    const subject = '⏰ تذكير هام بموعد التسليم النهائي (24 ساعة): الطالب ' + name;\n    const html = `<!DOCTYPE html>\n<html lang=\"ar\" dir=\"rtl\">\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b; direction: rtl; }\n    .card { max-width: 600px; margin: auto; background: #ffffff; border-radius: 16px; border: 2px solid #3b82f6; padding: 28px; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.12); }\n    .header { text-align: center; border-bottom: 2px solid #dbeafe; padding-bottom: 16px; margin-bottom: 20px; }\n    .pill-badge { display: inline-block; background: #eff6ff; color: #1d4ed8; padding: 6px 18px; border-radius: 20px; font-weight: 800; font-size: 13.5px; border: 1px solid #bfdbfe; margin-bottom: 10px; }\n    .task-box { background: #f0fdf4; border-right: 4px solid #10b981; padding: 16px 20px; border-radius: 8px; margin: 18px 0; line-height: 1.8; }\n    .btn-portal { display: inline-block; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff !important; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-weight: 800; font-size: 14px; margin-top: 15px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }\n    .footer { text-align: center; margin-top: 24px; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 14px; }\n  </style>\n</head>\n<body>\n  <div class=\"card\">\n    <div class=\"header\">\n      <div class=\"pill-badge\">⏰ تذكير آلي بموعد تسليم المهام الأكاديمية</div>\n      <h2 style=\"color: #1e3a8a; margin: 0;\">منظومة EduFlow — المتابعة الأكاديمية والتذكيرات الذكية</h2>\n    </div>\n    \n    <p style=\"font-size: 14.5px; line-height: 1.7; color: #334155;\">السيد / ولي أمر الطالب الكريم،،<br>تحية طيبة وبعد،،</p>\n    \n    <p style=\"font-size: 14px; line-height: 1.7; color: #334155;\">\n      نود تذكيركم بوجود مهمة دراسية مستحقة التسليم لنجلكم/ابنتكم الطالب: <strong>${name}</strong> (الصف: ${grade})، ولم يتم تسجيل تسليمها حتى الآن في المنظومة.\n    </p>\n    \n    <div class=\"task-box\">\n      <strong style=\"color: #166534; font-size: 14.5px;\">📋 تفاصيل المهمة المستحقة:</strong><br>\n      • <strong>عنوان المهمة / الكويز:</strong> ${task}<br>\n      • <strong>الموعد النهائي للتسليم:</strong> <span style=\"color: #b91c1c; font-weight: 800;\">متبقي أقل من 24 ساعة (${deadlineText})</span><br>\n      • <strong>الأثر الأكاديمي:</strong> احتساب درجات أعمال السنة والمتابعة الدورية.\n    </div>\n    \n    <div style=\"text-align: center; margin: 20px 0;\">\n      <a href=\"http://localhost:5500/index.html\" class=\"btn-portal\">\n        🚀 فتح بوابة الطالب وبدء حل المهمة الآن\n      </a>\n    </div>\n    \n    <p style=\"font-size: 13px; color: #64748b; text-align: center;\">\n      يرجى حث الطالب على حل التدريبات في أقرب وقت لتفادي إغلاق نظام التسليم التلقائي.\n    </p>\n    \n    <div class=\"footer\">\n      تم إرسال هذا التذكير تلقائياً عبر محرك التذكيرات المجدولة لمنظومة <strong>EduFlow</strong><br>\n      البريد الأكاديمي المعتمد: seifamrmohsen2005@gmail.com\n    </div>\n  </div>\n</body>\n</html>`;\n    \n    outputItems.push({\n      json: {\n        student_name: name,\n        grade,\n        parent_email: email,\n        task_title: task,\n        email_subject: subject,\n        email_html: html\n      }\n    });\n  }\n}\n\nreturn outputItems;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          240,
+          900
+        ],
+        "id": "f9e8d7c6-5544-3322-1100-aabbccddeeff",
+        "name": "Process Pending Deadlines & Build Reminders"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\n  \"success\": true,\n  \"message\": \"تم إرسال تذكيرات المهام (24 ساعة) بنجاح لأولياء الأمور عبر Gmail\",\n  \"dispatched_count\": $input.all().length,\n  \"timestamp\": new Date().toISOString()\n}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          520,
+          800
+        ],
+        "id": "a0b1c2d3-4455-6677-8899-001122334455",
+        "name": "Respond to Reminders Webhook"
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $json.parent_email }}",
+          "subject": "={{ $json.email_subject }}",
+          "message": "={{ $json.email_html }}",
+          "options": {},
+          "emailType": "html"
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          520,
+          1000
+        ],
+        "id": "b1c2d3e4-5566-7788-9900-112233445566",
+        "name": "Send Deadline Reminder Email",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "41qkSwppVhhyJmje",
+            "name": "Gmail account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Google Gemini Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Basic LLM Chain": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook1": {
+        "main": [
+          [
+            {
+              "node": "Append row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get row(s) in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get row(s) in sheet": {
+        "main": [
+          [
+            {
+              "node": "Filter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Gemini Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Basic LLM Chain1",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Basic LLM Chain1": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter": {
+        "main": [
+          [
+            {
+              "node": "Detect Academic Early Warnings (>15% Drop)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send a message": {
+        "main": [
+          [
+            {
+              "node": "Update row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook - Get Students": {
+        "main": [
+          [
+            {
+              "node": "Fetch Students from Sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Students from Sheet": {
+        "main": [
+          [
+            {
+              "node": "Respond with Students",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook - Attendance": {
+        "main": [
+          [
+            {
+              "node": "Process Attendance & Check Warnings",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Attendance & Check Warnings": {
+        "main": [
+          [
+            {
+              "node": "Respond to Attendance Webhook",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Filter Attendance Warnings",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Attendance Warnings": {
+        "main": [
+          [
+            {
+              "node": "Send Attendance Alert Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Detect Academic Early Warnings (>15% Drop)": {
+        "main": [
+          [
+            {
+              "node": "Basic LLM Chain1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook - Deadline Reminders": {
+        "main": [
+          [
+            {
+              "node": "Process Pending Deadlines & Build Reminders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Daily Schedule Trigger (Reminders)": {
+        "main": [
+          [
+            {
+              "node": "Process Pending Deadlines & Build Reminders",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Pending Deadlines & Build Reminders": {
+        "main": [
+          [
+            {
+              "node": "Respond to Reminders Webhook",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Send Deadline Reminder Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "staticData": {
+      "node:Schedule Trigger": {
+        "recurrenceRules": [
+          null
+        ],
+        "recurrenceRuleSignatures": [
+          null
+        ]
+      }
+    },
+    "meta": {
+      "templateCredsSetupCompleted": true
+    },
+    "nodeGroups": [],
+    "pinData": {},
+    "versionId": "696302f3-5505-4cd6-86b3-09dd46eb3dce",
+    "activeVersionId": "696302f3-5505-4cd6-86b3-09dd46eb3dce",
+    "versionCounter": 117,
+    "triggerCount": 3,
+    "sourceWorkflowId": null,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-10-16T21:16:42.347Z",
+        "createdAt": "2026-10-16T21:16:42.347Z",
+        "role": "workflow:owner",
+        "workflowId": "RLgXc6LtwgeysP0m",
+        "projectId": "4E4tiC50LpwbS2bl",
+        "project": {
+          "updatedAt": "2026-09-21T13:29:18.397Z",
+          "createdAt": "2026-09-21T13:28:28.429Z",
+          "id": "4E4tiC50LpwbS2bl",
+          "name": "Seif Amr <seifamrmohsen2005@gmail.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "customTelemetryTags": [],
+          "creatorId": "8ee9196b-14ba-4043-b78e-51afa3b1cf79"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": "Version 696302f3",
+      "description": ""
+    }
+  }
+]

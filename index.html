@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduFlow 🎓 | بوابة الطالب ونظام الاختبارات الذكي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-glow: rgba(37, 99, 235, 0.35);
+      --secondary: #0f172a;
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.3);
+      --success: #10b981;
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #eef2f6 50%, #e2e8f0 100%);
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation */
+    header {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 6px 15px var(--primary-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 19px;
+      font-weight: 800;
+      color: #1e3a8a;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-link {
+      padding: 9px 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link.active {
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+    }
+
+    .nav-link.secondary {
+      background: white;
+      color: #334155;
+      border: 1px solid var(--border);
+    }
+
+    .nav-link.secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+    }
+
+    .hero-badge span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+
+    .hero h2 {
+      font-size: 36px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+
+    .hero h2 span {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Form Card */
+    .form-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 40px;
+      box-shadow: 0 20px 45px rgba(30, 58, 138, 0.08);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-card {
+        padding: 24px;
+      }
+      .hero h2 {
+        font-size: 26px;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input:not([type="radio"]):not([type="checkbox"]), select, textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      color: #1e293b;
+      background: white;
+      transition: all 0.2s ease;
+    }
+
+    input[type="radio"], input[type="checkbox"] {
+      width: auto !important;
+      margin: 0;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+      background: #f8fafc;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 95px;
+    }
+
+    /* Quick Suggestions Chips */
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .chip:hover {
+      background: #e2e8f0;
+      color: var(--primary);
+      border-color: #cbd5e1;
+    }
+
+    /* Difficulty Pills */
+    .difficulty-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .diff-pill {
+      flex: 1;
+      position: relative;
+    }
+
+    .diff-pill input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .diff-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 10px;
+      background: #f8fafc;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .diff-pill input:checked + .diff-label {
+      border-color: var(--primary);
+      background: #eff6ff;
+      color: var(--primary);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+    }
+
+    /* Features List */
+    .features-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: 14px;
+      border: 1px dashed #cbd5e1;
+      margin-bottom: 24px;
+    }
+
+    .f-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      background: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .f-badge span {
+      color: var(--success);
+      font-weight: 900;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px var(--primary-glow);
+    }
+
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.45);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    /* AI Loading Studio Overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loading-box {
+      background: white;
+      border-radius: 24px;
+      max-width: 520px;
+      width: 100%;
+      padding: 40px 32px;
+      text-align: center;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .ai-orb {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #60a5fa, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 0 35px var(--primary-glow);
+      animation: rotateOrb 3s linear infinite;
+    }
+
+    @keyframes rotateOrb {
+      0% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    .loading-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+
+    .loading-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: right;
+      background: #f8fafc;
+      padding: 18px 20px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #475569;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .step-item.active {
+      color: var(--primary);
+      font-weight: 800;
+      transform: translateX(-4px);
+    }
+
+    .step-item.done {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .step-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    .step-item.active .step-icon {
+      background: var(--primary);
+      color: white;
+      animation: pulse 1s infinite;
+    }
+
+    .step-item.done .step-icon {
+      background: var(--success);
+      color: white;
+    }
+
+    /* Result Preview Container */
+    #preview-section {
+      display: none;
+      margin-top: 32px;
+    }
+
+    .preview-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      padding: 16px 24px;
+      border-radius: 16px 16px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      height: 900px;
+      border: 1px solid var(--border);
+      border-radius: 0 0 16px 16px;
+      background: white;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      background: white;
+      margin-top: 40px;
+    }
+
+    /* ========================================================
+       📱 Mobile Responsiveness Enhancements (Student Portal)
+       ======================================================== */
+    @media (max-width: 768px) {
+      /* Navigation Bar */
+      .nav-container {
+        padding: 12px 14px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .brand {
+        justify-content: center;
+      }
+      .brand-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 19px;
+      }
+      .brand-text h1 {
+        font-size: 16px;
+      }
+      .brand-text p {
+        font-size: 11px;
+      }
+      .nav-links {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 8px;
+      }
+      .nav-link {
+        flex: 1;
+        justify-content: center;
+        padding: 9px 12px;
+        font-size: 12px;
+        text-align: center;
+        border-radius: 10px;
+      }
+
+      /* Main container & Hero */
+      main {
+        padding: 18px 12px;
+      }
+      .hero {
+        padding: 24px 12px;
+        margin-bottom: 24px;
+      }
+      .hero-badge {
+        font-size: 11px;
+        padding: 4px 12px;
+      }
+      .hero h2 {
+        font-size: 21px;
+        line-height: 1.35;
+      }
+      .hero p {
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      /* Form Card */
+      .form-card {
+        padding: 18px 14px;
+        border-radius: 16px;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      /* Option Pills in 2 columns for easy finger tapping */
+      .difficulty-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .diff-label {
+        padding: 10px 8px;
+        font-size: 12px;
+        min-height: 52px;
+      }
+
+      /* Quick Chips */
+      .quick-chips {
+        gap: 6px;
+      }
+      .chip {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+
+      /* Features Checklist */
+      .features-badge-row {
+        padding: 12px;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+      .f-badge {
+        font-size: 11.5px;
+        padding: 6px 10px;
+      }
+
+      /* Submit Button */
+      .btn-submit {
+        padding: 15px;
+        font-size: 15px;
+        border-radius: 12px;
+      }
+
+      /* Preview Frame Section */
+      .preview-header-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 14px 14px 0 0;
+      }
+      .preview-iframe {
+        height: 650px;
+        border-radius: 0 0 14px 14px;
+      }
+
+      /* AI Loading Modal */
+      .loading-box {
+        padding: 28px 16px;
+        border-radius: 18px;
+        max-width: 95%;
+      }
+      .loading-title {
+        font-size: 17px;
+      }
+      .loading-subtitle {
+        font-size: 12px;
+      }
+      .step-item {
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+      .ai-orb {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+        margin-bottom: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .brand-text p {
+        display: none;
+      }
+      .difficulty-group {
+        grid-template-columns: 1fr;
+      }
+      .preview-iframe {
+        height: 560px;
+      }
+    }
+
+    /* Active Student Session Bar & Switcher */
+    .student-session-bar {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .ss-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .ss-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      border: 1.5px solid #bfdbfe;
+      flex-shrink: 0;
+    }
+    .ss-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ss-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .btn-switch-student {
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1.5px solid #bfdbfe;
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-switch-student:hover {
+      background: #dbeafe;
+      transform: translateY(-1px);
+    }
+
+    /* Modal for switching students */
+    .student-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .student-modal.active { display: flex; }
+    .student-modal-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border);
+    }
+    .sm-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sm-item:hover {
+      border-color: var(--primary);
+      background: #f8fafc;
+    }
+    .sm-item.active {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    /* Assigned Exams & Homework Card */
+    .assigned-exams-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+    .assigned-exams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .exam-task-card {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+    .exam-task-card:hover {
+      border-color: var(--primary);
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.08);
+    }
+    .exam-task-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1e3a8a;
+      line-height: 1.35;
+    }
+    .exam-task-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .btn-take-exam {
+      width: 100%;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+    }
+    .btn-take-exam:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    /* Ultra-Modern Interactive Exam Solver */
+    @keyframes modalPopIn {
+      0% { opacity: 0; transform: scale(0.95) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    }
+
+    body.modal-open {
+      overflow: hidden !important;
+      touch-action: none;
+    }
+
+    .solver-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(12px);
+      z-index: 1200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overscroll-behavior: contain;
+    }
+    .solver-card-container {
+      background: #ffffff;
+      border-radius: 24px;
+      max-width: 760px;
+      width: 100%;
+      box-shadow: 0 25px 65px -12px rgba(15, 23, 42, 0.35);
+      border: 1.5px solid rgba(226, 232, 240, 0.9);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 92vh;
+      animation: modalPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      overscroll-behavior: contain;
+    }
+    .solver-top-accent {
+      height: 5px;
+      background: linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #06b6d4 100%);
+    }
+    .solver-header-bar {
+      padding: 20px 26px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      background: #ffffff;
+    }
+    .solver-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .solver-meta-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .solver-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .solver-chip-subject {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #dbeafe;
+    }
+    .solver-chip-timer {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      animation: pulseGlow 2s infinite;
+    }
+    .solver-chip-grade {
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+    .solver-btn-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: none;
+      color: #64748b;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .solver-btn-close:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      transform: rotate(90deg);
+    }
+    .solver-stepper-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .solver-step-chip {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      background: #ffffff;
+      color: #64748b;
+      font-weight: 800;
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .solver-step-chip:hover {
+      border-color: #93c5fd;
+      color: #2563eb;
+    }
+    .solver-step-chip.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+      transform: scale(1.08);
+    }
+    .solver-step-chip.answered {
+      background: #dcfce7;
+      color: #15803d;
+      border-color: #86efac;
+    }
+    .solver-progress-track {
+      flex: 1;
+      height: 6px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-right: 8px;
+    }
+    .solver-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
+    .solver-body-area {
+      padding: 22px 26px;
+      overflow-y: auto;
+      flex: 1;
+      overscroll-behavior: contain;
+    }
+    .solver-q-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
+    }
+    .solver-q-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .solver-q-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #eff6ff;
+      color: #2563eb;
+      padding: 4px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .solver-q-text {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+
+    /* Choice Tiles */
+    .solver-choices-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .solver-choice-tile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 18px;
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+    .solver-choice-tile:hover {
+      border-color: #93c5fd;
+      background: #f8faff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.08);
+    }
+    .solver-choice-tile.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(37, 99, 235, 0.14);
+    }
+    .solver-choice-letter {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #475569;
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-left: 14px;
+      transition: all 0.2s;
+    }
+    .solver-choice-tile.selected .solver-choice-letter {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
+    }
+    .solver-choice-text {
+      flex: 1;
+      text-align: right;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+    .solver-choice-tile.selected .solver-choice-text {
+      color: #1e3a8a;
+      font-weight: 800;
+    }
+    .solver-choice-radio-indicator {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 900;
+      transition: all 0.2s;
+      background: #ffffff;
+    }
+    .solver-choice-tile.selected .solver-choice-radio-indicator {
+      border-color: #2563eb;
+      background: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    }
+
+    .solver-footer-actions {
+      padding: 15px 26px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .solver-btn-nav {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      border: 1.5px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+    }
+    .solver-btn-nav:hover:not(:disabled) {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    .solver-btn-nav:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .solver-btn-submit-main {
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.28);
+      transition: all 0.2s;
+    }
+    .solver-btn-submit-main:hover {
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">🎓</div>
+        <div class="brand-text">
+          <h1>EduFlow — المنصة التعليمية الذكية</h1>
+          <p>المساعد الأكاديمي والتقييم الآلي</p>
+        </div>
+      </a>
+      <div class="nav-links">
+        <span style="font-size: 13px; color: #1e40af; font-weight: 800; background: #eff6ff; border: 1.5px solid #bfdbfe; padding: 6px 14px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px;">
+          <span>👨‍🎓</span> حساب الطالب المعتمد
+        </span>
+        <button class="nav-link" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; cursor: pointer; border-radius: 10px; font-weight: 800;" onclick="EduFlow.logout('student')">
+          🔒 خروج
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Active Student Session Bar -->
+    <div class="student-session-bar" id="studentSessionBar">
+      <div class="ss-left">
+        <div class="ss-avatar" id="activeStudentAvatar">👨‍🎓</div>
+        <div>
+          <div class="ss-name">
+            <span id="activeStudentName">جاري التحقق من الحساب...</span>
+            <span class="badge" id="activeStudentId" style="background: #1e3a8a; color: white; font-family: monospace; font-size: 12px;">#كود الطالب</span>
+          </div>
+          <div class="ss-sub" id="activeStudentSub">
+            جاري المزامنة مع قاعدة البيانات السحابية...
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn-switch-student" onclick="openStudentModal()">
+          <span>🔄 تبديل حساب الطالب</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Assigned Exams & Homework from Teacher -->
+    <div class="assigned-exams-card" id="assignedExamsContainer">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #1e3a8a; margin: 0;">
+            📋 الامتحانات والواجبات المخصصة لصفك الدراسي
+          </h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin: 3px 0 0;">
+            تم نشرها من قِبل معلم المادة خصيصاً لطلاب مرحلتك الدراسية
+          </p>
+        </div>
+        <span class="badge" id="studentGradePill" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 12px; font-weight: 800;">
+          الصف الثاني الإعدادي 🎯
+        </span>
+      </div>
+      <div class="assigned-exams-grid" id="assignedExamsList">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-badge">
+        <span></span>
+        مشروع التخرج النهائي | مسار التعليم الذكي 🚀
+      </div>
+      <h2>صمّم درساً تفاعلياً، <span>واختباراً ذكياً</span> مع شهادة تقدير فورية</h2>
+      <p>منظومة متكاملة للمعلم والطالب: توليد شرح منظم، بطاقات استذكار سريعة ثلاثية الأبعاد (3D Flashcards)، كويز تفاعلي بأصوات وشروحات فورية، وربط آلي مع بريد ولي الأمر وGoogle Sheets.</p>
+    </div>
+
+    <!-- Generator Form -->
+    <div class="form-card" id="form-container">
+      <form id="lessonForm" onsubmit="handleGenerate(event)">
+        <div class="form-grid">
+          
+          <!-- Grade Selection -->
+          <div class="form-group">
+            <label for="grade">📚 الصف الدراسي:</label>
+            <select name="grade" id="grade" required>
+              <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+              <option value="الصف الثاني الإعدادي" selected>الصف الثاني الإعدادي</option>
+              <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+              <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+              <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+              <option value="المرحلة الابتدائية العليا">المرحلة الابتدائية (الرابع - السادس)</option>
+            </select>
+          </div>
+
+          <!-- Difficulty Selection -->
+          <div class="form-group">
+            <label>⚡ مستوى الصعوبة:</label>
+            <div class="difficulty-group">
+              <div class="diff-pill">
+                <input type="radio" name="difficulty" id="diff_easy" value="سهل وممتع">
+                <label class="diff-label" for="diff_easy">🌱 سهل وممتع</label>
+              </div>
+              <div class="diff-pill">
+                <input type="radio" name="difficulty" id="diff_mid" value="متوسط متوازن" checked>
+                <label class="diff-label" for="diff_mid">⚖️ متوازن قياسي</label>
+              </div>
+              <div class="diff-pill">
+                <input type="radio" name="difficulty" id="diff_hard" value="تحدي الأوائل">
+                <label class="diff-label" for="diff_hard">🏆 تحدي الأوائل</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Questions Count Selection -->
+          <div class="form-group full-width">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label>🔢 عدد أسئلة الاختبار (Quiz):</label>
+              <span style="font-size: 12px; color: var(--text-muted);">اختر عدد الأسئلة المناسب لتدريبك (ليس إجبارياً 5 أسئلة)</span>
+            </div>
+            <div class="difficulty-group" id="questions-pill-group">
+              <div class="diff-pill">
+                <input type="radio" name="questions_count" id="q_3" value="3" onchange="handleQuestionCountChange('3')">
+                <label class="diff-label" for="q_3">⚡ 3 أسئلة<span style="font-size: 11px; font-weight: 500; opacity: 0.8; margin-top: 2px;">(سريع ومباشر)</span></label>
+              </div>
+              <div class="diff-pill">
+                <input type="radio" name="questions_count" id="q_5" value="5" checked onchange="handleQuestionCountChange('5')">
+                <label class="diff-label" for="q_5">⚖️ 5 أسئلة<span style="font-size: 11px; font-weight: 500; opacity: 0.8; margin-top: 2px;">(النموذج القياسي)</span></label>
+              </div>
+              <div class="diff-pill">
+                <input type="radio" name="questions_count" id="q_10" value="10" onchange="handleQuestionCountChange('10')">
+                <label class="diff-label" for="q_10">🎯 10 أسئلة<span style="font-size: 11px; font-weight: 500; opacity: 0.8; margin-top: 2px;">(شامل ومكثف)</span></label>
+              </div>
+              <div class="diff-pill">
+                <input type="radio" name="questions_count" id="q_custom" value="custom" onchange="handleQuestionCountChange('custom')">
+                <label class="diff-label" for="q_custom">✍️ عدد مخصص<span style="font-size: 11px; font-weight: 500; opacity: 0.8; margin-top: 2px;">(حدد بنفسك)</span></label>
+              </div>
+            </div>
+            <div id="custom-questions-wrapper" style="display: none; margin-top: 10px;">
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="number" id="custom_questions_input" min="1" max="25" placeholder="أدخل عدد الأسئلة المطلوب (مثال: 7 أو 12 أو 15 سؤال)" style="max-width: 320px;" oninput="syncCustomValue(this.value)">
+                <span style="font-size: 13px; color: var(--text-muted);">سؤال تفاعلي</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lesson Title -->
+          <div class="form-group full-width">
+            <label for="lesson">🎯 اسم الدرس أو الموضوع العلمي:</label>
+            <input type="text" name="lesson" id="lesson" placeholder="أدخل اسم الدرس أو الموضوع العلمي (مثال: الجهاز الدوري، قوانين نيوتن، المعادلات الخطية...)" required>
+            
+            <!-- Quick Chips -->
+            <div class="quick-chips">
+              <span class="chip" onclick="setTopic('الجهاز الدوري في الإنسان', 'الصف الثاني الإعدادي')">🫀 الجهاز الدوري</span>
+              <span class="chip" onclick="setTopic('التركيب الذري للمادة والجدول الدوري', 'الصف الأول الإعدادي')">⚛️ التركيب الذري</span>
+              <span class="chip" onclick="setTopic('حل معادلات الدرجة الثانية في متغير واحد', 'الصف الثالث الإعدادي')">📐 المعادلات التربيعية</span>
+              <span class="chip" onclick="setTopic('الحركة في اتجاه واحد وقوانين السرعة', 'الصف الثالث الإعدادي')">🏎️ الحركة والسرعة</span>
+              <span class="chip" onclick="setTopic('مقدمة في الذكاء الاصطناعي والبرمجة', 'المرحلة الثانوية')">🤖 الذكاء الاصطناعي</span>
+            </div>
+          </div>
+
+          <!-- Additional Notes / Context -->
+          <div class="form-group full-width">
+            <label for="content">📝 محتوى الدرس أو نقاط تركيز خاصة (اختياري):</label>
+            <textarea name="content" id="content" placeholder="انسخ فقرة من كتاب الوزارة أو اكتب المفاهيم التي ترغب في التركيز عليها..."></textarea>
+          </div>
+
+        </div>
+
+        <!-- Included Features Checklist -->
+        <div class="features-badge-row">
+          <div class="f-badge"><span>✓</span> ملخص وشرح المنهج</div>
+          <div class="f-badge"><span>✓</span> 4 بطاقات 3D Flashcards</div>
+          <div class="f-badge"><span id="badge-quiz-text">✓ كويز تفاعلي بأصوات وشروحات (مرن)</span></div>
+          <div class="f-badge"><span>✓</span> احتفال كونفيتي عند النجاح 🎊</div>
+          <div class="f-badge"><span>✓</span> شهادة تفوق بالاسم والدرجة 🏆</div>
+          <div class="f-badge"><span>✓</span> تقرير آلي لولي الأمر عبر Gmail ✉️</div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span>🚀 توليد البيئة التفاعلية والاختبار الذكي</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Live Preview Frame Section -->
+    <div id="preview-section">
+      <div class="preview-header-bar">
+        <div>
+          <h3 id="preview-title" style="color: #1e3a8a; font-size: 17px;">البيئة التعليمية التفاعلية جاهزة! ✨</h3>
+          <p style="font-size: 13px; color: var(--text-muted);">يمكن للطالب الآن مذاكرة الدرس، قلب بطاقات الاستذكار، وحل الكويز واستلام شهادته.</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="nav-link secondary" onclick="openFullscreen()">⛶ شاشة كاملة</button>
+          <button class="nav-link active" onclick="resetForm()">➕ درس جديد</button>
+        </div>
+      </div>
+      <iframe id="preview-frame" class="preview-iframe" title="Interactive Lesson Preview"></iframe>
+    </div>
+  </main>
+
+  <!-- AI Loading Studio Modal -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">
+      <div class="ai-orb">🧠</div>
+      <h3 class="loading-title">جاري التوليد بواسطة Gemini و n8n...</h3>
+      <p class="loading-subtitle">نقوم الآن ببناء بيئة تعليمية متكاملة لدرسك في ثوانٍ معدودة</p>
+      
+      <div class="step-list">
+        <div class="step-item" id="step1">
+          <div class="step-icon">1</div>
+          <span>🔍 استخراج المفاهيم الأكاديمية وصياغة الشرح المبسط...</span>
+        </div>
+        <div class="step-item" id="step2">
+          <div class="step-icon">2</div>
+          <span>🗂️ هندسة بطاقات الاستذكار السريعة (3D Flashcards)...</span>
+        </div>
+        <div class="step-item" id="step3">
+          <div class="step-icon">3</div>
+          <span id="step3-label">📝 بناء أسئلة الكويز التفاعلية مع بنك التفسيرات والأصوات...</span>
+        </div>
+        <div class="step-item" id="step4">
+          <div class="step-icon">4</div>
+          <span>🏆 إعداد شهادة التفوق ومنظومة إرسال التقارير لولي الأمر...</span>
+        </div>
+        <div class="step-item" id="step5">
+          <div class="step-icon">5</div>
+          <span>✨ اللمسات النهائية للواجهة التفاعلية...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Student Switcher Modal -->
+  <div class="student-modal" id="studentModal">
+    <div class="student-modal-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h3 style="color: #1e3a8a; font-size: 17px; margin: 0;">👨‍🎓 اختيار حساب الطالب المعتمد</h3>
+        <button type="button" onclick="closeStudentModal()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b;">✕</button>
+      </div>
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
+        اختر حساب الطالب الذي يؤدي الاختبار، ليتم ربط درجاته وإرسال التقرير لولي أمره آلياً دون الحاجة لكتابة بريد يدوي:
+      </p>
+      <div id="studentModalList" style="max-height: 280px; overflow-y: auto;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Modern Exam Solver Modal -->
+  <div class="solver-modal-overlay" id="examSolverModal">
+    <div class="solver-card-container">
+      <div class="solver-top-accent"></div>
+      
+      <!-- Modal Header -->
+      <div class="solver-header-bar">
+        <div class="solver-header-top">
+          <div class="solver-meta-chips">
+            <span class="solver-chip solver-chip-subject" id="solverSubjectChip">🧪 مادة العلوم</span>
+            <span class="solver-chip solver-chip-grade" id="solverGradeChip">الصف الثاني الإعدادي</span>
+            <span class="solver-chip solver-chip-timer" id="solverTimerChip">⏱️ <span id="solverTimerText">20:00</span></span>
+          </div>
+          <button type="button" class="solver-btn-close" onclick="closeExamModal()" title="إغلاق الاختبار">✕</button>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;">
+          <h3 id="solverExamTitle" style="color: #0f172a; font-size: 19px; font-weight: 900; margin: 0;">اختبار تقييمي</h3>
+          <span id="solverProgressText" style="font-size: 13px; font-weight: 800; color: #2563eb;">السؤال 1 من 2</span>
+        </div>
+
+        <!-- Stepper Chips & Progress Bar -->
+        <div class="solver-stepper-row">
+          <div class="solver-progress-track">
+            <div class="solver-progress-fill" id="solverProgressBar" style="width: 50%;"></div>
+          </div>
+          <div id="solverStepperChips" style="display: flex; gap: 6px;"></div>
+        </div>
+      </div>
+      
+      <!-- Questions Body Area (Interactive Stepper View) -->
+      <div class="solver-body-area" id="solverQuestionsArea">
+        <!-- Injected dynamically question by question -->
+      </div>
+
+      <!-- Result Celebration Screen -->
+      <div class="solver-body-area" id="solverResultArea" style="display: none; padding: 24px;">
+        <!-- Injected on submit -->
+      </div>
+
+      <!-- Footer Navigation Actions -->
+      <div class="solver-footer-actions" id="solverActionsArea">
+        <button type="button" class="solver-btn-nav" id="btnPrevQuestion" onclick="navigateExamQuestion(-1)">
+          <span>→ السؤال السابق</span>
+        </button>
+
+        <span id="solverQuestionCounter" style="font-size: 13px; font-weight: 800; color: #64748b;">
+          تمت الإجابة على 0 من 2
+        </span>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="solver-btn-nav" id="btnNextQuestion" onclick="navigateExamQuestion(1)" style="background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;">
+            <span>السؤال التالي ←</span>
+          </button>
+          <button type="button" class="solver-btn-submit-main" id="btnSubmitExam" onclick="submitExamAnswers()">
+            <span>✓ تسليم الاختبار 🚀</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    منظومة EduFlow لمتابعة أداء الطلاب 2026 | تطوير وإشراف: سيف عمرو | مدعوم بـ n8n و Google Gemini
+  </footer>
+
+  <script src="eduflow-core.js"></script>
+  <script>
+    function setTopic(lessonName, gradeName) {
+      document.getElementById('lesson').value = lessonName;
+      if (gradeName) {
+        document.getElementById('grade').value = gradeName;
+      }
+    }
+
+    function handleQuestionCountChange(val) {
+      const customWrapper = document.getElementById('custom-questions-wrapper');
+      const badgeQuizText = document.getElementById('badge-quiz-text');
+      if (val === 'custom') {
+        customWrapper.style.display = 'block';
+        document.getElementById('custom_questions_input').focus();
+        if (badgeQuizText) badgeQuizText.innerText = '✓ كويز تفاعلي بعدد أسئلة مخصص';
+      } else {
+        customWrapper.style.display = 'none';
+        if (badgeQuizText) badgeQuizText.innerText = `✓ كويز ${val} أسئلة بتصحيح صوتي فوري`;
+      }
+    }
+
+    function syncCustomValue(val) {
+      const badgeQuizText = document.getElementById('badge-quiz-text');
+      if (badgeQuizText && val) {
+        badgeQuizText.innerText = `✓ كويز ${val} أسئلة بتصحيح صوتي فوري`;
+      }
+    }
+
+    let stepInterval;
+
+    function startProgressSteps() {
+      const steps = ['step1', 'step2', 'step3', 'step4', 'step5'];
+      let current = 0;
+
+      steps.forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'step-item';
+      });
+
+      document.getElementById(steps[0]).classList.add('active');
+
+      stepInterval = setInterval(() => {
+        if (current < steps.length - 1) {
+          document.getElementById(steps[current]).classList.remove('active');
+          document.getElementById(steps[current]).classList.add('done');
+          current++;
+          document.getElementById(steps[current]).classList.add('active');
+        }
+      }, 2500);
+    }
+
+    async function handleGenerate(e) {
+      e.preventDefault();
+
+      const grade = document.getElementById('grade').value;
+      const lesson = document.getElementById('lesson').value;
+      const content = document.getElementById('content').value;
+      const difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+
+      // Extract dynamic question count
+      const selectedQRadio = document.querySelector('input[name="questions_count"]:checked');
+      let questionsCount = selectedQRadio ? selectedQRadio.value : '5';
+      if (questionsCount === 'custom') {
+        const customVal = document.getElementById('custom_questions_input').value;
+        questionsCount = (customVal && parseInt(customVal, 10) > 0) ? parseInt(customVal, 10) : 5;
+      }
+      questionsCount = Math.max(1, Math.min(25, parseInt(questionsCount, 10) || 5));
+
+      // Update loading text dynamically
+      const step3Label = document.getElementById('step3-label');
+      if (step3Label) {
+        step3Label.innerText = `📝 بناء ${questionsCount} أسئلة كويز تفاعلية مع بنك التفسيرات والأصوات...`;
+      }
+
+      // Show Loading Modal
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.add('active');
+      startProgressSteps();
+
+      // Target n8n Webhook URL with questions_count
+      const stName = currentStudent ? currentStudent.student_name : "طالب EduFlow";
+      const stEmail = currentStudent ? currentStudent.parent_email : "seifamrmohsen2005@gmail.com";
+      const stId = currentStudent ? currentStudent.student_id : "STU-101";
+      const webhookUrl = `http://localhost:5678/webhook/generate?lesson=${encodeURIComponent(lesson)}&grade=${encodeURIComponent(grade)}&difficulty=${encodeURIComponent(difficulty)}&questions_count=${encodeURIComponent(questionsCount)}&student_name=${encodeURIComponent(stName)}&parent_email=${encodeURIComponent(stEmail)}&student_id=${encodeURIComponent(stId)}`;
+
+      try {
+        const response = await fetch(webhookUrl);
+        const html = await response.text();
+
+        clearInterval(stepInterval);
+        overlay.classList.remove('active');
+
+        // Mount to iframe
+        const frame = document.getElementById('preview-frame');
+        const previewSec = document.getElementById('preview-section');
+        const formContainer = document.getElementById('form-container');
+
+        frame.srcdoc = html;
+        previewSec.style.display = 'block';
+        document.getElementById('preview-title').innerText = `تم توليد درس: ${lesson} بنجاح (${questionsCount} أسئلة)! 🎓`;
+
+        // Smooth scroll to preview
+        previewSec.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        clearInterval(stepInterval);
+        overlay.classList.remove('active');
+        console.error('Error fetching webhook:', err);
+        // Fallback: direct window open
+        if (confirm('تنبيه: تعذر تضمين الصفحة داخل المعاينة الحالية. هل ترغب في فتح الصفحة مباشرة في تبويب جديد؟')) {
+          window.open(webhookUrl, '_blank');
+        }
+      }
+    }
+
+    function openFullscreen() {
+      const frame = document.getElementById('preview-frame');
+      if (frame.requestFullscreen) {
+        frame.requestFullscreen();
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('preview-section').style.display = 'none';
+      document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* Student Session Management */
+    let currentStudent = null;
+
+    function initStudentSession() {
+      if (window.EduFlow) {
+        currentStudent = EduFlow.getStudentAuth();
+        if (!currentStudent) {
+          // Real Authentication Guard: Redirect unauthenticated students to login
+          window.location.href = 'login.html';
+          return;
+        }
+        updateStudentBar();
+      }
+    }
+
+    async function updateStudentBar() {
+      if (!currentStudent) return;
+      document.getElementById('activeStudentName').innerText = currentStudent.student_name;
+      document.getElementById('activeStudentId').innerText = '#' + currentStudent.student_id;
+      document.getElementById('activeStudentAvatar').innerText = currentStudent.avatar || '👨‍🎓';
+      document.getElementById('activeStudentSub').innerText = `${currentStudent.grade_level} • ✉️ ولي الأمر: ${currentStudent.parent_name || 'ولي الأمر'} (${currentStudent.parent_email || 'غير مسجل'})`;
+      
+      const gradePill = document.getElementById('studentGradePill');
+      if (gradePill) gradePill.innerText = `${currentStudent.grade_level} 🎯`;
+
+      // Pre-select student's grade if possible
+      const gradeSelect = document.getElementById('grade');
+      if (gradeSelect) {
+        for (let i = 0; i < gradeSelect.options.length; i++) {
+          if (gradeSelect.options[i].text.includes(currentStudent.grade_level) || currentStudent.grade_level.includes(gradeSelect.options[i].value)) {
+            gradeSelect.selectedIndex = i;
+            break;
+          }
+        }
+      }
+
+      await renderAssignedExams();
+    }
+
+    // -------------------------------------------------------------------------
+    // Teacher Assigned Exams System
+    // -------------------------------------------------------------------------
+    let activeExamToSolve = null;
+    let studentSelectedAnswers = {};
+
+    async function renderAssignedExams() {
+      const container = document.getElementById('assignedExamsList');
+      if (!container || !currentStudent) return;
+      container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #2563eb; padding: 20px;">⏳ جاري جلب الامتحانات من قاعدة البيانات السحابية...</div>';
+
+      const exams = await EduFlow.getExamsByGradeAsync(currentStudent.grade_level);
+      container.innerHTML = '';
+
+      if (!exams || exams.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px; padding: 24px; text-align: center; color: #64748b;">
+            لا توجد واجبات أو امتحانات جديدة منشورة لصفك (${currentStudent.grade_level}) حالياً في قاعدة البيانات. يمكنك التمرن على أي درس عبر المولد الذكي أدناه! ✨
+          </div>
+        `;
+        return;
+      }
+
+      exams.forEach(ex => {
+        const qCount = Array.isArray(ex.questions) ? ex.questions.length : 0;
+        const card = document.createElement('div');
+        card.className = 'exam-task-card';
+        card.innerHTML = `
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+              <span class="badge" style="background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-size: 11px;">📖 ${escapeHtml(ex.subject || 'اختبار')}</span>
+              <span class="badge" style="background: #ecfdf5; color: #065f46; font-size: 11px;">متاح للحل الآن 🟢</span>
+            </div>
+            <h4 class="exam-task-title">${escapeHtml(ex.title)}</h4>
+            <div class="exam-task-meta" style="margin-top: 8px;">
+              <span>⏳ ${ex.duration_minutes || 20} دقيقة</span>
+              <span>•</span>
+              <span>❓ ${qCount} أسئلة</span>
+              <span>•</span>
+              <span>📅 ${escapeHtml(ex.deadline || 'محدد')}</span>
+            </div>
+          </div>
+          <div>
+            <button type="button" class="btn-take-exam" onclick="startTakingExam('${ex.exam_id}')">
+              <span>بدء حل الاختبار الآن ⏱️</span>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    let activeExamQuestionIndex = 0;
+    let examTimerInterval = null;
+    let examTimeRemainingSeconds = 0;
+    const ARABIC_LETTERS = ['أ', 'ب', 'ج', 'د', 'هـ', 'و'];
+
+    function startTakingExam(examId) {
+      const exams = EduFlow.getExams();
+      activeExamToSolve = exams.find(e => e.exam_id === examId);
+      if (!activeExamToSolve) return;
+
+      studentSelectedAnswers = {};
+      activeExamQuestionIndex = 0;
+
+      // Header Meta
+      document.getElementById('solverExamTitle').innerText = activeExamToSolve.title;
+      document.getElementById('solverSubjectChip').innerText = `🔬 ${activeExamToSolve.subject}`;
+      document.getElementById('solverGradeChip').innerText = activeExamToSolve.grade_level || 'المرحلة الإعدادية';
+      
+      // Start Countdown Timer
+      const duration = activeExamToSolve.duration_minutes || 20;
+      examTimeRemainingSeconds = duration * 60;
+      updateExamTimerDisplay();
+      if (examTimerInterval) clearInterval(examTimerInterval);
+      examTimerInterval = setInterval(() => {
+        if (examTimeRemainingSeconds > 0) {
+          examTimeRemainingSeconds--;
+          updateExamTimerDisplay();
+        } else {
+          clearInterval(examTimerInterval);
+          alert('انتهى الوقت المحدد للاختبار! سيتم تسليم إجاباتك الحالية تلقائياً.');
+          submitExamAnswers();
+        }
+      }, 1000);
+
+      // Reset views
+      document.getElementById('solverResultArea').style.display = 'none';
+      document.getElementById('solverQuestionsArea').style.display = 'block';
+      document.getElementById('solverActionsArea').style.display = 'flex';
+
+      // Render First Question
+      renderExamCurrentQuestion();
+
+      document.body.classList.add('modal-open');
+      document.getElementById('examSolverModal').style.display = 'flex';
+    }
+
+    function updateExamTimerDisplay() {
+      const mins = Math.floor(examTimeRemainingSeconds / 60);
+      const secs = examTimeRemainingSeconds % 60;
+      const el = document.getElementById('solverTimerText');
+      if (el) {
+        el.innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      }
+    }
+
+    function renderExamCurrentQuestion() {
+      if (!activeExamToSolve || !activeExamToSolve.questions) return;
+      const questions = activeExamToSolve.questions;
+      const totalQ = questions.length;
+      const q = questions[activeExamQuestionIndex];
+      const answeredCount = Object.keys(studentSelectedAnswers).length;
+
+      // Update Progress & Text
+      const progressPct = Math.round(((activeExamQuestionIndex + 1) / totalQ) * 100);
+      document.getElementById('solverProgressBar').style.width = `${progressPct}%`;
+      document.getElementById('solverProgressText').innerText = `السؤال ${activeExamQuestionIndex + 1} من ${totalQ}`;
+      document.getElementById('solverQuestionCounter').innerText = `تمت الإجابة على ${answeredCount} من ${totalQ} أسئلة`;
+
+      // Render Stepper Chips
+      const chipsContainer = document.getElementById('solverStepperChips');
+      chipsContainer.innerHTML = '';
+      for (let i = 0; i < totalQ; i++) {
+        const isCurrent = i === activeExamQuestionIndex;
+        const isAnswered = studentSelectedAnswers[i] !== undefined;
+        const chip = document.createElement('div');
+        chip.className = `solver-step-chip ${isCurrent ? 'active' : ''} ${isAnswered ? 'answered' : ''}`;
+        chip.title = `انتقال للسؤال ${i + 1}`;
+        chip.innerText = isAnswered && !isCurrent ? `${i + 1}✓` : `${i + 1}`;
+        chip.onclick = () => jumpToExamQuestion(i);
+        chipsContainer.appendChild(chip);
+      }
+
+      // Render Question Card
+      const qArea = document.getElementById('solverQuestionsArea');
+      qArea.innerHTML = `
+        <div class="solver-q-card">
+          <div class="solver-q-badge-row">
+            <span class="solver-q-badge">سؤال رقم ${activeExamQuestionIndex + 1}</span>
+            <span style="font-size: 12px; font-weight: 700; color: #64748b;">درجة السؤال: 1 درجة</span>
+          </div>
+          <div class="solver-q-text">${escapeHtml(q.question)}</div>
+          <div class="solver-choices-list">
+            ${q.choices.map((c, cIdx) => {
+              const isSelected = studentSelectedAnswers[activeExamQuestionIndex] === cIdx;
+              return `
+                <div class="solver-choice-tile ${isSelected ? 'selected' : ''}" id="choice_tile_${cIdx}" onclick="selectExamChoice(${activeExamQuestionIndex}, ${cIdx})">
+                  <div style="display: flex; align-items: center; flex: 1;">
+                    <div class="solver-choice-letter">${ARABIC_LETTERS[cIdx] || (cIdx + 1)}</div>
+                    <div class="solver-choice-text">${escapeHtml(c)}</div>
+                  </div>
+                  <div class="solver-choice-radio-indicator">
+                    ${isSelected ? '✓' : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      // Update Navigation Buttons
+      const btnPrev = document.getElementById('btnPrevQuestion');
+      const btnNext = document.getElementById('btnNextQuestion');
+      const btnSubmit = document.getElementById('btnSubmitExam');
+
+      btnPrev.disabled = activeExamQuestionIndex === 0;
+      if (activeExamQuestionIndex === totalQ - 1) {
+        btnNext.style.display = 'none';
+        btnSubmit.style.display = 'inline-flex';
+      } else {
+        btnNext.style.display = 'inline-flex';
+        // Submit is also visible if all answered
+        btnSubmit.style.display = answeredCount === totalQ ? 'inline-flex' : 'none';
+      }
+    }
+
+    function selectExamChoice(qIdx, cIdx) {
+      studentSelectedAnswers[qIdx] = cIdx;
+      renderExamCurrentQuestion();
+    }
+
+    function navigateExamQuestion(delta) {
+      if (!activeExamToSolve) return;
+      const totalQ = activeExamToSolve.questions.length;
+      const newIdx = activeExamQuestionIndex + delta;
+      if (newIdx >= 0 && newIdx < totalQ) {
+        activeExamQuestionIndex = newIdx;
+        renderExamCurrentQuestion();
+      }
+    }
+
+    function jumpToExamQuestion(idx) {
+      if (!activeExamToSolve) return;
+      if (idx >= 0 && idx < activeExamToSolve.questions.length) {
+        activeExamQuestionIndex = idx;
+        renderExamCurrentQuestion();
+      }
+    }
+
+    async function submitExamAnswers() {
+      if (!activeExamToSolve) return;
+      if (examTimerInterval) clearInterval(examTimerInterval);
+
+      const questions = activeExamToSolve.questions;
+      let score = 0;
+      let answeredCount = Object.keys(studentSelectedAnswers).length;
+
+      if (answeredCount < questions.length) {
+        if (!confirm(`لقد أجبت على ${answeredCount} من ${questions.length} أسئلة فقط. هل أنت متأكد من تسليم الاختبار الآن؟`)) {
+          return;
+        }
+      }
+
+      const reviewItems = [];
+
+      questions.forEach((q, idx) => {
+        const studentAns = studentSelectedAnswers[idx];
+        const isCorrect = studentAns === q.correctIndex;
+        if (isCorrect) score++;
+
+        reviewItems.push({
+          question: q.question,
+          studentChoice: studentAns !== undefined ? q.choices[studentAns] : 'لم يتم الإجابة',
+          correctChoice: q.choices[q.correctIndex],
+          isCorrect: isCorrect,
+          explanation: q.explanation || 'الإجابة النموذجية تعتمد على المفاهيم العلمية للدرس.'
+        });
+      });
+
+      const total = questions.length;
+      const pct = Math.round((score / total) * 100);
+
+      // Record assessment in Supabase & local persistence
+      await EduFlow.recordAssessmentAsync({
+        student_id: currentStudent ? currentStudent.student_id : '',
+        student_name: currentStudent ? currentStudent.student_name : '',
+        grade_level: currentStudent ? currentStudent.grade_level : '',
+        title: activeExamToSolve.title,
+        subject: activeExamToSolve.subject,
+        score: score,
+        max_score: total,
+        pct: pct
+      });
+
+      // Show Result View
+      const qArea = document.getElementById('solverQuestionsArea');
+      const resArea = document.getElementById('solverResultArea');
+      const actArea = document.getElementById('solverActionsArea');
+
+      qArea.style.display = 'none';
+      actArea.style.display = 'none';
+      resArea.style.display = 'block';
+
+      let resultBadge = pct >= 85 ? '🌟 تفوق باهر وامتياز' : (pct >= 70 ? '👍 مستوى جيد جداً ومبشر' : '💡 يحتاج لمراجعة وتدريب إضافي');
+      let resultColor = pct >= 70 ? '#10b981' : '#ef4444';
+      let resultIcon = pct >= 85 ? '🏆' : (pct >= 70 ? '🎖️' : '📚');
+
+      resArea.innerHTML = `
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: ${pct >= 70 ? '#ecfdf5' : '#fef2f2'}; color: ${resultColor}; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 12px; border: 3px solid ${resultColor}; box-shadow: 0 10px 25px rgba(0,0,0,0.06);">
+            ${resultIcon}
+          </div>
+          <h2 style="font-size: 24px; font-weight: 900; color: #0f172a; margin-bottom: 6px;">
+            درجتك النهائية: ${score} من ${total} (${pct}%)
+          </h2>
+          <span style="display: inline-block; padding: 6px 18px; border-radius: 20px; font-size: 14px; font-weight: 800; background: ${pct >= 70 ? '#ecfdf5' : '#fef2f2'}; color: ${resultColor}; border: 1.5px solid ${resultColor}; margin-bottom: 12px;">
+            ${resultBadge}
+          </span>
+          <p style="font-size: 13.5px; color: #64748b; line-height: 1.7; max-width: 540px; margin: 0 auto;">
+            ✅ تم توثيق نتيجتك سحابياً في منظومة <strong>EduFlow</strong>، وإضافتها لسجل المعلم، وإرسال تقرير الأداء التفصيلي لولي أمرك (${currentStudent.parent_email || 'المعتمد'}) عبر محرك الأتمتة n8n.
+          </p>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px;">
+          <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 14px; text-align: center;">
+            <div style="font-size: 11.5px; color: #64748b; font-weight: 800; margin-bottom: 4px;">الإجابات الصحيحة</div>
+            <div style="font-size: 20px; font-weight: 900; color: #10b981;">${score} / ${total}</div>
+          </div>
+          <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 14px; text-align: center;">
+            <div style="font-size: 11.5px; color: #64748b; font-weight: 800; margin-bottom: 4px;">النسبة المئوية</div>
+            <div style="font-size: 20px; font-weight: 900; color: #2563eb;">${pct}%</div>
+          </div>
+          <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 14px; text-align: center;">
+            <div style="font-size: 11.5px; color: #64748b; font-weight: 800; margin-bottom: 4px;">حالة التوثيق</div>
+            <div style="font-size: 14px; font-weight: 900; color: #10b981; margin-top: 4px;">معتمد سحابياً ☁️</div>
+          </div>
+        </div>
+
+        <!-- Explanations & Review List -->
+        <div style="background: #ffffff; border-radius: 16px; border: 1.5px solid #e2e8f0; padding: 18px; margin-bottom: 24px; max-height: 280px; overflow-y: auto;">
+          <h4 style="font-size: 14.5px; font-weight: 900; color: #1e3a8a; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+            <span>💡 مراجعة بنك الأسئلة والتفسيرات العلمية:</span>
+          </h4>
+          ${reviewItems.map((r, i) => `
+            <div style="background: #f8fafc; border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-right: 4px solid ${r.isCorrect ? '#10b981' : '#ef4444'};">
+              <div style="font-weight: 800; font-size: 14px; color: #0f172a; margin-bottom: 6px;">
+                س ${i + 1}: ${escapeHtml(r.question)}
+              </div>
+              <div style="display: flex; gap: 14px; font-size: 12.5px; font-weight: 700; margin-bottom: 8px; flex-wrap: wrap;">
+                <span style="color: ${r.isCorrect ? '#059669' : '#dc2626'};">
+                  إجابتك: <strong>${escapeHtml(r.studentChoice)}</strong> ${r.isCorrect ? '✓' : '✗'}
+                </span>
+                ${!r.isCorrect ? `<span style="color: #1d4ed8;">الإجابة النموذجية: <strong>${escapeHtml(r.correctChoice)}</strong></span>` : ''}
+              </div>
+              <div style="font-size: 12px; color: #475569; background: #ffffff; padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0; line-height: 1.6;">
+                🎯 <strong>التفسير العلمي:</strong> ${escapeHtml(r.explanation)}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Action Button -->
+        <div style="text-align: center;">
+          <button type="button" class="btn-submit" style="width: auto; padding: 12px 36px; font-size: 14.5px; font-weight: 800;" onclick="closeExamModal()">
+            <span>إغلاق والعودة للبوابة الأكاديمية</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function closeExamModal() {
+      if (examTimerInterval) clearInterval(examTimerInterval);
+      document.getElementById('examSolverModal').style.display = 'none';
+      document.body.classList.remove('modal-open');
+      activeExamToSolve = null;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function openStudentModal() {
+      const container = document.getElementById('studentModalList');
+      container.innerHTML = '';
+      const list = EduFlow.getStudents();
+
+      list.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'sm-item' + (s.student_id === currentStudent.student_id ? ' active' : '');
+        div.onclick = function() {
+          EduFlow.setActiveStudent(s.student_id);
+          currentStudent = s;
+          updateStudentBar();
+          closeStudentModal();
+        };
+        div.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 24px;">${s.avatar || '👨‍🎓'}</div>
+            <div>
+              <strong style="font-size: 14px; color: #1e293b;">${s.student_name}</strong>
+              <div style="font-size: 11.5px; color: #64748b;">${s.grade_level} • #${s.student_id}</div>
+            </div>
+          </div>
+          <span style="font-size: 11.5px; color: #2563eb; background: #eff6ff; padding: 4px 10px; border-radius: 12px; font-weight: 700;">اختيار</span>
+        `;
+        container.appendChild(div);
+      });
+
+      document.body.classList.add('modal-open');
+      document.getElementById('studentModal').classList.add('active');
+    }
+
+    function closeStudentModal() {
+      document.getElementById('studentModal').classList.remove('active');
+      document.body.classList.remove('modal-open');
+    }
+
+    // Modal background click & escape key listeners
+    window.addEventListener('click', function(e) {
+      const solverModal = document.getElementById('examSolverModal');
+      if (e.target === solverModal) {
+        closeExamModal();
+      }
+      const stuModal = document.getElementById('studentModal');
+      if (e.target === stuModal) {
+        closeStudentModal();
+      }
+    });
+
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeExamModal();
+        closeStudentModal();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', initStudentSession);
+
+  </script>
+</body>
+</html>

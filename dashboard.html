@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduFlow — لوحة تحكم المعلم والإنذار المبكر واستعلام الطلاب</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --secondary: #0f172a;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --card-bg: #ffffff;
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+    .nav-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .brand-text h1 {
+      font-size: 19px;
+      font-weight: 800;
+      color: #1e3a8a;
+      line-height: 1.2;
+    }
+    .brand-text p {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-link {
+      padding: 9px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link.secondary {
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid var(--border);
+    }
+    .nav-link.secondary:hover { background: #e2e8f0; }
+    .nav-link.primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Main Dashboard Layout */
+    main {
+      flex: 1;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 28px 24px;
+      width: 100%;
+    }
+
+    /* Top Section Bar */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .page-title h2 {
+      font-size: 25px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .page-title p {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      margin-top: 3px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .live-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+    .btn {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-outline {
+      background: white;
+      border: 1.5px solid var(--border);
+      color: #334155;
+    }
+    .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success {
+      background: var(--success);
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+    .btn-success:hover { background: #059669; }
+
+    /* Dashboard Navigation Tabs Bar */
+    .dash-tabs-bar {
+      display: flex;
+      gap: 8px;
+      background: #ffffff;
+      padding: 8px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+    .dash-tab-btn {
+      padding: 11px 20px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: #64748b;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .dash-tab-btn:hover {
+      background: #f1f5f9;
+      color: var(--primary);
+    }
+    .dash-tab-btn.active {
+      background: #eff6ff;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Tab Content Areas */
+    .tab-section { display: none; }
+    .tab-section.active { display: block; animation: tabFade 0.2s ease; }
+    @keyframes tabFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 22px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    }
+    .kpi-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .kpi-blue .kpi-icon { background: #eff6ff; color: #2563eb; }
+    .kpi-green .kpi-icon { background: #ecfdf5; color: #10b981; }
+    .kpi-purple .kpi-icon { background: #faf5ff; color: #a855f7; }
+    .kpi-amber .kpi-icon { background: #fffbeb; color: #f59e0b; }
+    .kpi-content h3 {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+    .kpi-trend {
+      font-size: 11.5px;
+      font-weight: 700;
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--success);
+    }
+
+    /* Charts & Split */
+    .dashboard-split {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 960px) {
+      .dashboard-split { grid-template-columns: 1fr; }
+    }
+    .chart-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 22px;
+      border: 1px solid var(--border);
+    }
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .card-title h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1e293b;
+    }
+    .card-title span {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: #f1f5f9;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .bar-chart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .bar-item { display: flex; flex-direction: column; gap: 5px; }
+    .bar-header { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; }
+    .bar-bg { height: 10px; background: #f1f5f9; border-radius: 6px; overflow: hidden; display: flex; }
+    .bar-fill { height: 100%; border-radius: 6px; transition: width 0.8s ease; }
+
+    /* Automation Banner Box */
+    .automation-box {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white;
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .auto-badge {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: inline-block;
+      width: fit-content;
+      margin-bottom: 10px;
+    }
+    .auto-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .auto-desc { font-size: 12.5px; line-height: 1.6; opacity: 0.9; margin-bottom: 16px; }
+    .auto-stats {
+      display: flex;
+      gap: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 14px;
+    }
+    .auto-stat-item h4 { font-size: 18px; font-weight: 900; }
+    .auto-stat-item p { font-size: 10.5px; opacity: 0.8; }
+
+    /* Table Styles */
+    .table-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+    }
+    .table-toolbar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .search-box { position: relative; min-width: 280px; }
+    .search-box input {
+      width: 100%;
+      padding: 10px 38px 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+    .filter-group { display: flex; gap: 8px; align-items: center; }
+    .filter-select {
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      background: white;
+      outline: none;
+    }
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: right; }
+    th {
+      background: #f8fafc;
+      color: #64748b;
+      font-weight: 700;
+      font-size: 12.5px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fbfcfe; }
+
+    .student-cell { display: flex; align-items: center; gap: 10px; }
+    .student-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+    .badge-score-5 { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .badge-score-4 { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-score-3 { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .badge-score-low { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .badge-sent { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-pending { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+
+    /* TAB 2: STUDENT DOSSIER LOOKUP STYLES */
+    .lookup-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+    }
+    .lookup-bar-wrapper {
+      display: flex;
+      gap: 10px;
+      max-width: 650px;
+      margin-bottom: 14px;
+    }
+    .lookup-input {
+      flex: 1;
+      padding: 12px 18px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      outline: none;
+    }
+    .lookup-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+    .quick-student-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 12px;
+    }
+    .qs-chip {
+      background: #f1f5f9;
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 700;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s ease;
+    }
+    .qs-chip:hover {
+      background: #eff6ff;
+      color: var(--primary);
+      border-color: #bfdbfe;
+    }
+
+    /* Student Dossier Presentation */
+    .dossier-panel {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.03);
+    }
+    .dossier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1.5px solid #f1f5f9;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .dossier-user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .dossier-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+    .dossier-name-box h3 {
+      font-size: 21px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .dossier-code-pill {
+      display: inline-block;
+      background: #1e3a8a;
+      color: white;
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      font-family: monospace;
+      margin-top: 4px;
+    }
+    .dossier-contacts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+      font-size: 13px;
+    }
+    .dossier-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 800px) {
+      .dossier-kpis { grid-template-columns: repeat(2, 1fr); }
+    }
+    .dkpi-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .dkpi-val { font-size: 22px; font-weight: 900; color: #1e293b; margin: 4px 0; }
+    .dkpi-label { font-size: 11.5px; color: #64748b; font-weight: 700; }
+
+    /* TAB 3: EXAM STUDIO STYLES */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .studio-grid { grid-template-columns: 1fr; }
+    }
+    .studio-form-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .form-group-st { margin-bottom: 16px; }
+    .form-group-st label { display: block; font-size: 13px; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+    .st-input, .st-select, .st-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #0f172a;
+      outline: none;
+    }
+    .st-input:focus, .st-select:focus, .st-textarea:focus { border-color: var(--primary); }
+    .question-block {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .choice-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .choice-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12.5px;
+    }
+    .published-exams-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .published-exam-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    body.modal-open {
+      overflow: hidden !important;
+      touch-action: none;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+      overscroll-behavior: contain;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #ffffff;
+      border-radius: var(--radius);
+      max-width: 600px;
+      width: 100%;
+      padding: 28px;
+      overscroll-behavior: contain;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #64748b;
+    }
+
+    /* Auth Gate Overlay */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    }
+    .auth-icon {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Teacher Auth Gate Overlay -->
+  <div class="auth-overlay" id="authGate">
+    <div class="auth-card" id="authCard">
+      <div class="auth-icon">🔐</div>
+      <h2 style="font-size: 22px; font-weight: 900; color: #0f172a; margin-bottom: 6px;">منطقة المعلم والإدارة</h2>
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">
+        لوحة التحكم تحتوي على استعلام كود الطالب، منشئ الامتحانات الموجهة، وسجل الدرجات الحقيقي. ادخل كلمة المرور للمتابعة:
+      </p>
+      
+      <form onsubmit="handleTeacherLogin(event)">
+        <div style="margin-bottom: 16px;">
+          <input type="password" id="teacherPassInput" placeholder="أدخل كلمة مرور المعلم..." style="width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 12px; font-family: inherit; font-size: 15px; text-align: center;" required autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 14.5px; justify-content: center;">
+          <span>🚀 فتح لوحة تحكم المعلم</span>
+        </button>
+        <div id="authError" style="color: #ef4444; font-size: 12.5px; font-weight: 700; margin-top: 10px; display: none;">
+          ⚠️ كلمة المرور غير صحيحة، يرجى المحاولة مرة أخرى
+        </div>
+      </form>
+
+      <a href="login.html" style="display: inline-block; margin-top: 18px; font-size: 12.5px; color: #2563eb; text-decoration: none; font-weight: 700;">
+        ← العودة لبوابة تسجيل الدخول الموحدة
+      </a>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="brand">
+        <div class="brand-icon">🎓</div>
+        <div class="brand-text">
+          <h1>EduFlow — لوحة المعلم المركزية</h1>
+          <p>إدارة الدرجات، استعلام كود الطالب، ونظام نشر الامتحانات</p>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link secondary">👨‍🎓 بوابة الطالب</a>
+        <a href="parent.html" class="nav-link secondary">👨‍👩‍👧‍👦 بوابة ولي الأمر</a>
+        <button class="nav-link secondary" onclick="teacherLogout()" style="background: #fee2e2; color: #991b1b; border-color: #fecaca; cursor: pointer;">
+          🔒 خروج
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="mainDashboard">
+    <!-- Top Bar -->
+    <div class="page-header">
+      <div class="page-title">
+        <h2>لوحة متابعة الأداء والتحكم الشامل 📊</h2>
+        <p>نظام متصل بقاعدة البيانات وسجلات الحضور وتحليلات الذكاء الاصطناعي</p>
+      </div>
+      <div class="header-actions">
+        <div class="live-status-pill" id="livePill">
+          <span class="live-dot"></span>
+          <span id="liveStatusText">قاعدة البيانات و Google Sheets متصلة 🟢</span>
+        </div>
+        <button class="btn btn-outline" id="refreshBtn" onclick="refreshDashboardData()">
+          <span id="refreshIcon">🔄</span> تحديث البيانات
+        </button>
+      </div>
+    </div>
+
+    <!-- Master Tabs Switcher -->
+    <div class="dash-tabs-bar">
+      <button class="dash-tab-btn active" id="tabBtn1" onclick="switchDashTab(1)">
+        <span>📊 سجل الدرجات والتحليلات العامة</span>
+      </button>
+      <button class="dash-tab-btn" id="tabBtn2" onclick="switchDashTab(2)">
+        <span>🔍 استعلام ملف الطالب بكود القيد</span>
+      </button>
+      <button class="dash-tab-btn" id="tabBtn3" onclick="switchDashTab(3)">
+        <span>📝 منشئ الامتحانات الموجهة (Exam Studio)</span>
+      </button>
+      <button class="dash-tab-btn" id="tabBtn4" onclick="switchDashTab(4)">
+        <span>📅 رصد الحضور والغياب (Roll Call)</span>
+      </button>
+    </div>
+
+    <!-- ========================================================
+         TAB 1: ASSESSMENTS & ANALYTICS OVERVIEW
+         ======================================================== -->
+    <div class="tab-section active" id="tabContent1">
+      <!-- KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon">👨‍🎓</div>
+          <div class="kpi-content">
+            <h3>إجمالي الاختبارات المنجزة</h3>
+            <div class="kpi-value" id="kpi-total-tests">--</div>
+            <span class="kpi-trend" id="kpi-total-sub">سجلات معتمدة في المنظومة</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-green">
+          <div class="kpi-icon">🎯</div>
+          <div class="kpi-content">
+            <h3>متوسط درجات الطلاب</h3>
+            <div class="kpi-value" id="kpi-avg-score">--%</div>
+            <span class="kpi-trend" id="kpi-avg-sub">نسبة الاستيعاب العامة</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-icon">✉️</div>
+          <div class="kpi-content">
+            <h3>تقارير أولياء الأمور المرسلة</h3>
+            <div class="kpi-value" id="kpi-reports-sent">--</div>
+            <span class="kpi-trend">مرسلة عبر Gmail و n8n</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-icon">🏆</div>
+          <div class="kpi-content">
+            <h3>شهادات التفوق الصادرة</h3>
+            <div class="kpi-value" id="kpi-certificates">--</div>
+            <span class="kpi-trend">للطلاب المحققين ≥ 75%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics & Automation Overview Split -->
+      <div class="dashboard-split">
+        <!-- Level Distribution Chart -->
+        <div class="chart-card">
+          <div class="card-title">
+            <h3>تحليل توزيع مستويات الطلاب 📈</h3>
+            <span id="chartLastUpdated">بيانات حية مباشرة</span>
+          </div>
+          <div class="bar-chart-container">
+            <div class="bar-item">
+              <div class="bar-header">
+                <span>امتياز (85% - 100%) 🌟</span>
+                <span id="bar-text-5">0 طالب (0%)</span>
+              </div>
+              <div class="bar-bg">
+                <div class="bar-fill" id="bar-fill-5" style="width: 0%; background: #10b981;"></div>
+              </div>
+            </div>
+
+            <div class="bar-item">
+              <div class="bar-header">
+                <span>جيد جداً (70% - 84%) 👍</span>
+                <span id="bar-text-4">0 طالب (0%)</span>
+              </div>
+              <div class="bar-bg">
+                <div class="bar-fill" id="bar-fill-4" style="width: 0%; background: #3b82f6;"></div>
+              </div>
+            </div>
+
+            <div class="bar-item">
+              <div class="bar-header">
+                <span>جيد (50% - 69%) ⚡</span>
+                <span id="bar-text-3">0 طالب (0%)</span>
+              </div>
+              <div class="bar-bg">
+                <div class="bar-fill" id="bar-fill-3" style="width: 0%; background: #f59e0b;"></div>
+              </div>
+            </div>
+
+            <div class="bar-item">
+              <div class="bar-header">
+                <span>يحتاج لمتابعة ودعم (أقل من 50%) 💡</span>
+                <span id="bar-text-low">0 طالب (0%)</span>
+              </div>
+              <div class="bar-bg">
+                <div class="bar-fill" id="bar-fill-low" style="width: 0%; background: #ef4444;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Automation Status -->
+        <div class="automation-box">
+          <div>
+            <span class="auto-badge">⚡ n8n Engine & Google Sheets</span>
+            <h3 class="auto-title">المساعد التربوي نشط ومتصل!</h3>
+            <p class="auto-desc">
+              التدفق مربوط آلياً. عند قيام أي طالب بإنهاء الاختبار، يتم تسجيل درجاته تلقائياً وتوليد التقرير التشجيعي وإرساله لولي الأمر فوراً عبر Gmail.
+            </p>
+          </div>
+          <div class="auto-stats">
+            <div class="auto-stat-item">
+              <h4 id="autoLiveCount">0</h4>
+              <p>سجل نشط</p>
+            </div>
+            <div class="auto-stat-item">
+              <h4>Gemini</h4>
+              <p>المستشار التربوي</p>
+            </div>
+            <div class="auto-stat-item">
+              <h4>Supabase</h4>
+              <p>قاعدة البيانات</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Students Live Data Table -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="بحث باسم الطالب، كود القيد، أو الدرس..." onkeyup="filterTable()">
+          </div>
+          <div class="filter-group">
+            <select class="filter-select" id="gradeFilter" onchange="filterTable()">
+              <option value="">جميع الصفوف الدراسية</option>
+              <option value="الأول الإعدادي">الأول الإعدادي</option>
+              <option value="الثاني الإعدادي">الثاني الإعدادي</option>
+              <option value="الثالث الإعدادي">الثالث الإعدادي</option>
+              <option value="المرحلة الثانوية">المرحلة الثانوية</option>
+            </select>
+            <select class="filter-select" id="statusFilter" onchange="filterTable()">
+              <option value="">جميع الحالات</option>
+              <option value="تم الإرسال">تم الإرسال لولي الأمر</option>
+              <option value="قيد الإرسال">قيد المعالجة</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>الطالب</th>
+                <th>الصف الدراسي</th>
+                <th>اسم الدرس / الاختبار</th>
+                <th>الدرجة</th>
+                <th>تاريخ الحل</th>
+                <th>بريد ولي الأمر</th>
+                <th>حالة التقرير</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         TAB 2: STUDENT DOSSIER & CODE LOOKUP
+         ======================================================== -->
+    <div class="tab-section" id="tabContent2">
+      <div class="lookup-card">
+        <h3 style="font-size: 18px; font-weight: 800; color: #1e3a8a; margin-bottom: 6px;">
+          البحث الفوري واستعلام ملف الطالب بكود القيد 🔍
+        </h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+          ادخل كود الطالب الفريد (مثال: EDU-XXXX) أو اسم الطالب للاطلاع على سجله الأكاديمي، درجاته، وحضوره وغيابه وتوصيات Gemini:
+        </p>
+
+        <div class="lookup-bar-wrapper">
+          <input type="text" id="dossierSearchInput" class="lookup-input" placeholder="ادخل كود الطالب المميز (مثال: EDU-XXXX) أو اسمه...">
+          <button class="btn btn-primary" onclick="searchStudentDossier()">
+            <span>بحث في السجلات</span>
+          </button>
+        </div>
+
+        <div class="quick-student-chips" id="quickStudentChips">
+          <!-- Dynamically populated from Supabase -->
+        </div>
+      </div>
+
+      <!-- Dossier Result Container -->
+      <div id="dossierResultArea">
+        <div style="background: white; border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 40px; text-align: center; color: #64748b;">
+          👈 يرجى كتابة كود الطالب أو اسمه أعلاه أو اختيار طالب لعرض ملفه الشامل
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         TAB 3: EXAM STUDIO & PUBLISHING ENGINE
+         ======================================================== -->
+    <div class="tab-section" id="tabContent3">
+      <div class="studio-grid">
+        <!-- Exam Builder Form -->
+        <div class="studio-form-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 18px; font-weight: 800; color: #1e3a8a;">
+              منشئ الامتحانات والواجبات الموجهة ✍️
+            </h3>
+            <button type="button" class="btn btn-outline" style="font-size: 12px; color: #2563eb;" onclick="autofillAiExam()">
+              <span>🧠 اقتراح اختبار ذكي</span>
+            </button>
+          </div>
+
+          <form onsubmit="handlePublishExam(event)">
+            <div class="form-group-st">
+              <label>عنوان الامتحان أو الواجب:</label>
+              <input type="text" id="exTitle" class="st-input" placeholder="مثال: اختبار العلوم: الجهاز الدوري ونبض القلب" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="form-group-st">
+              <div>
+                <label>المرحلة الدراسية المستهدفة:</label>
+                <select id="exGrade" class="st-select" required>
+                  <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+                  <option value="الصف الثاني الإعدادي" selected>الصف الثاني الإعدادي</option>
+                  <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+                  <option value="المرحلة الثانوية">المرحلة الثانوية</option>
+                </select>
+              </div>
+              <div>
+                <label>المادة الدراسية:</label>
+                <input type="text" id="exSubject" class="st-input" placeholder="مثال: العلوم، الرياضيات، اللغة الإنجليزية..." required>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="form-group-st">
+              <div>
+                <label>مدة الامتحان (بالدقائق):</label>
+                <input type="number" id="exDuration" class="st-input" placeholder="مثال: 20 دقيقة" min="5" max="180">
+              </div>
+              <div>
+                <label>الموعد النهائي للتسليم:</label>
+                <input type="text" id="exDeadline" class="st-input" placeholder="مثال: خلال 24 ساعة، الأحد القادم...">
+              </div>
+            </div>
+
+            <!-- Dynamic Questions Area -->
+            <div style="margin: 20px 0 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="font-weight: 800; font-size: 14px; color: #0f172a;">أسئلة الاختبار (اختيار من متعدد):</label>
+                <button type="button" class="btn btn-outline" style="font-size: 12px;" onclick="addQuestionField()">
+                  <span>➕ إضافة سؤال</span>
+                </button>
+              </div>
+              
+              <div id="questionsContainer">
+                <!-- Questions injected here -->
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 15px; justify-content: center;">
+              <span>🚀 نشر الامتحان لجميع طلاب هذا الصف</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Currently Published Exams Sidebar -->
+        <div>
+          <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
+            <h3 style="font-size: 16px; font-weight: 800; color: #1e3a8a; margin-bottom: 12px;">
+              الامتحانات المنشورة حالياً في المنظومة 📋
+            </h3>
+            <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px;">
+              تظهر هذه الامتحانات تلقائياً لكل طالب في حسابه بحسب مرحلته الدراسية:
+            </p>
+
+            <div class="published-exams-list" id="publishedExamsList">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         TAB 4: ATTENDANCE & ROLL CALL SYSTEM
+         ======================================================== -->
+    <div class="tab-section" id="tabContent4">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div>
+            <h3 style="font-size: 17px; font-weight: 800; color: #1e3a8a;">سجل رصد الحضور والغياب اليومي (Roll Call) 📅</h3>
+            <p style="font-size: 12.5px; color: var(--text-muted);">رصد الحضور بنقرة واحدة وتنبيهات تلقائية لمن تجاوز غيابه مرتين</p>
+          </div>
+          <div>
+            <button class="btn btn-success" onclick="saveRollCall()">
+              <span>💾 حفظ سجل اليوم وتحديث نسب الحضور</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>كود الطالب</th>
+                <th>اسم الطالب</th>
+                <th>المرحلة</th>
+                <th>نسبة الحضور التراكمية</th>
+                <th>الغياب المتتالي</th>
+                <th>حالة إنذار الغياب</th>
+                <th>تسجيل اليوم</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Report Modal -->
+  <div class="modal" id="reportModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalStudentTitle" style="color: #1e3a8a; font-size: 18px;">تقرير المتابعة التربوي ✉️</h3>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modalReportContent" style="line-height: 1.8; color: #334155; font-size: 14px;">
+        <!-- Filled dynamically -->
+      </div>
+      <div style="margin-top: 22px; text-align: left;">
+        <button class="btn btn-outline" onclick="closeModal()">إغلاق النافذة</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="eduflow-core.js"></script>
+  <script>
+    // State
+    let studentsData = [];
+
+    // Tab Switching
+    function switchDashTab(tabId) {
+      document.querySelectorAll('.dash-tab-btn').forEach((b, idx) => {
+        b.classList.toggle('active', (idx + 1) === tabId);
+      });
+      document.querySelectorAll('.tab-section').forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === tabId);
+      });
+
+      if (tabId === 2) {
+        renderQuickStudentChips();
+        const q = document.getElementById('dossierSearchInput').value;
+        if (q) searchStudentDossier();
+      } else if (tabId === 3) {
+        renderPublishedExams();
+      } else if (tabId === 4) {
+        renderAttendanceTable();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 1: Live Assessments & KPIs
+    // -------------------------------------------------------------------------
+    function parseScoreData(raw) {
+      if (typeof raw === 'number') {
+        const t = 5;
+        const s = raw;
+        const pct = Math.min(100, Math.round((s / t) * 100));
+        return { score: s, total: t, pct, display: `${s} / ${t}` };
+      }
+      if (!raw) return { score: 0, total: 5, pct: 0, display: '0 / 5' };
+      const str = String(raw).trim();
+      const slashMatch = str.match(/^(\d+)\s*(?:\/|من)\s*(\d+)/);
+      if (slashMatch) {
+        const s = parseInt(slashMatch[1], 10);
+        const t = parseInt(slashMatch[2], 10) || 5;
+        const pct = t > 0 ? Math.min(100, Math.round((s / t) * 100)) : 0;
+        return { score: s, total: t, pct, display: `${s} / ${t}` };
+      }
+      const numMatch = str.match(/^(\d+)/);
+      const s = numMatch ? parseInt(numMatch[1], 10) : 0;
+      const t = s > 5 ? 10 : 5;
+      const pct = Math.min(100, Math.round((s / t) * 100));
+      return { score: s, total: t, pct, display: `${s} / ${t}` };
+    }
+
+    function getInitials(name) {
+      if (!name) return 'ط';
+      const parts = name.trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] || '') + ' ' + (parts[1][0] || '');
+      return parts[0].substring(0, 2);
+    }
+
+    async function loadRealtimeData() {
+      const refreshBtn = document.getElementById('refreshBtn');
+      const livePill = document.getElementById('livePill');
+      const liveStatusText = document.getElementById('liveStatusText');
+
+      // 1. Direct fetch from Supabase Cloud
+      if (EduFlow.supabaseClient) {
+        try {
+          const { data: dbAssessments, error } = await EduFlow.supabaseClient
+            .from('assessments')
+            .select('*')
+            .order('submitted_at', { ascending: false });
+
+          if (!error && Array.isArray(dbAssessments)) {
+            const { data: dbStudents } = await EduFlow.supabaseClient.from('students').select('*');
+            const stMap = new Map();
+            if (Array.isArray(dbStudents)) {
+              dbStudents.forEach(s => stMap.set(s.student_id, s));
+            }
+
+            studentsData = dbAssessments.map((a, idx) => {
+              const st = stMap.get(a.student_id) || {};
+              return {
+                'row_number': idx + 1,
+                'اسم الطالب': st.student_name || a.student_name || a.student_id,
+                'الصف الدراسي': a.grade_level || st.grade_level || 'غير محدد',
+                'اسم الدرس': a.title,
+                'الدرجة': `${a.score} / ${a.max_score}`,
+                'تاريخ الحل': a.submitted_at ? a.submitted_at.replace('T', ' ').substring(0, 16) : 'اليوم',
+                'إيميل ولي الأمر': st.parent_email || 'غير مسجل',
+                'حالة الإرسال': 'تم الإرسال لولي الأمر'
+              };
+            });
+
+            liveStatusText.innerText = 'متصل بـ Supabase السحابي مباشرة 🟢';
+            livePill.style.background = '#ecfdf5';
+            livePill.style.color = '#065f46';
+            livePill.style.borderColor = '#a7f3d0';
+
+            renderDashboard(studentsData);
+            return;
+          }
+        } catch (e) {
+          console.warn('Supabase fetch failed, trying fallback:', e);
+        }
+      }
+
+      // 2. Fallback to n8n webhook or local cache
+      try {
+        const response = await fetch('http://localhost:5678/webhook/students');
+        if (!response.ok) throw new Error('HTTP error ' + response.status);
+        const data = await response.json();
+        studentsData = Array.isArray(data) ? data : (data.data || []);
+        studentsData.reverse();
+      } catch (err) {
+        const coreAssessments = EduFlow.getAssessments();
+        studentsData = coreAssessments.map((a, idx) => ({
+          'row_number': idx + 1,
+          'اسم الطالب': a.student_name || 'طالب مسجل',
+          'الصف الدراسي': a.grade_level || 'غير محدد',
+          'اسم الدرس': a.title,
+          'الدرجة': `${a.score} / ${a.max_score}`,
+          'تاريخ الحل': a.submitted_at,
+          'إيميل ولي الأمر': 'seifamrmohsen2005@gmail.com',
+          'حالة الإرسال': 'تم الإرسال لولي الأمر'
+        }));
+      }
+
+      renderDashboard(studentsData);
+    }
+
+    function renderDashboard(data) {
+      const total = data.length;
+      document.getElementById('autoLiveCount').innerText = total;
+
+      let sumPct = 0;
+      let sentCount = 0;
+      let certCount = 0;
+      let count5 = 0, count4 = 0, count3 = 0, countLow = 0;
+
+      data.forEach(item => {
+        const parsed = parseScoreData(item['الدرجة']);
+        sumPct += parsed.pct;
+        if (parsed.pct >= 75) certCount++;
+        if (parsed.pct >= 85) count5++;
+        else if (parsed.pct >= 70) count4++;
+        else if (parsed.pct >= 50) count3++;
+        else countLow++;
+
+        const status = item['حالة الإرسال'] || '';
+        if (status.includes('تم الإرسال')) sentCount++;
+      });
+
+      const avgPercent = total > 0 ? Math.round(sumPct / total) : 0;
+
+      document.getElementById('kpi-total-tests').innerText = total;
+      document.getElementById('kpi-avg-score').innerText = total > 0 ? `${avgPercent}%` : '--';
+      document.getElementById('kpi-reports-sent').innerText = sentCount;
+      document.getElementById('kpi-certificates').innerText = certCount;
+
+      const pct5 = total > 0 ? Math.round((count5 / total) * 100) : 0;
+      const pct4 = total > 0 ? Math.round((count4 / total) * 100) : 0;
+      const pct3 = total > 0 ? Math.round((count3 / total) * 100) : 0;
+      const pctLow = total > 0 ? Math.round((countLow / total) * 100) : 0;
+
+      document.getElementById('bar-text-5').innerText = `${count5} طالب (${pct5}%)`;
+      document.getElementById('bar-fill-5').style.width = `${pct5}%`;
+      document.getElementById('bar-text-4').innerText = `${count4} طالب (${pct4}%)`;
+      document.getElementById('bar-fill-4').style.width = `${pct4}%`;
+      document.getElementById('bar-text-3').innerText = `${count3} طالب (${pct3}%)`;
+      document.getElementById('bar-fill-3').style.width = `${pct3}%`;
+      document.getElementById('bar-text-low').innerText = `${countLow} طالب (${pctLow}%)`;
+      document.getElementById('bar-fill-low').style.width = `${pctLow}%`;
+
+      document.getElementById('chartLastUpdated').innerText = `آخر تحديث: ${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+
+      renderTableRows(data);
+    }
+
+    function renderTableRows(data) {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 45px 20px; color: #64748b;">
+              <div style="font-size: 32px; margin-bottom: 8px;">📋</div>
+              <strong style="color: #1e3a8a; font-size: 16px;">لا توجد نتائج اختبارات مسجلة بعد</strong>
+              <p style="font-size: 13px; color: #94a3b8; margin-top: 6px;">
+                عند قيام أي طالب مسجل بحل اختبار، ستظهر نتيجته وإشعار ولي أمره هنا في الجدول تلقائياً عبر Supabase.
+              </p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      data.forEach((item, index) => {
+        const studentName = item['اسم الطالب'] || 'طالب';
+        const grade = item['الصف الدراسي'] || 'غير محدد';
+        const lesson = item['اسم الدرس'] || 'اختبار';
+        const parsed = parseScoreData(item['الدرجة']);
+        const rawScore = item['الدرجة'] || parsed.display;
+        const date = item['تاريخ الحل'] || 'اليوم';
+        const email = item['إيميل ولي الأمر'] || 'seifamrmohsen2005@gmail.com';
+        const status = item['حالة الإرسال'] || 'تم الإرسال لولي الأمر';
+        const rowNum = item['row_number'] || (index + 1);
+
+        let scoreBadgeClass = 'badge-score-low';
+        let scoreLabel = `${parsed.display} (${parsed.pct}%)`;
+        if (parsed.pct >= 85) { scoreBadgeClass = 'badge-score-5'; scoreLabel = `🌟 ${parsed.display} (امتياز)`; }
+        else if (parsed.pct >= 70) { scoreBadgeClass = 'badge-score-4'; scoreLabel = `👍 ${parsed.display} (جيد جداً)`; }
+        else if (parsed.pct >= 50) { scoreBadgeClass = 'badge-score-3'; scoreLabel = `⚡ ${parsed.display} (جيد)`; }
+        else { scoreBadgeClass = 'badge-score-low'; scoreLabel = `💡 ${parsed.display} (يحتاج دعم)`; }
+
+        const isSent = status.includes('تم الإرسال');
+        const statusBadgeClass = isSent ? 'badge-sent' : 'badge-pending';
+        const statusLabel = isSent ? '✓ تم الإرسال لولي الأمر' : '⏳ قيد المعالجة';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: #64748b; font-weight: 700; font-size: 12px;">#${rowNum}</td>
+          <td>
+            <div class="student-cell">
+              <div class="student-avatar">${getInitials(studentName)}</div>
+              <div>
+                <strong>${escapeHtml(studentName)}</strong>
+              </div>
+            </div>
+          </td>
+          <td>${escapeHtml(grade)}</td>
+          <td><strong>${escapeHtml(lesson)}</strong></td>
+          <td><span class="badge ${scoreBadgeClass}">${scoreLabel}</span></td>
+          <td style="font-size: 13px; color: #475569;">${escapeHtml(date)}</td>
+          <td style="font-size: 13px; color: #2563eb; direction: ltr; text-align: right;">${escapeHtml(email)}</td>
+          <td><span class="badge ${statusBadgeClass}">${statusLabel}</span></td>
+          <td>
+            <button class="btn btn-outline" style="padding: 5px 10px; font-size: 11.5px;" onclick="previewReport('${escapeQuotes(studentName)}', '${escapeQuotes(lesson)}', '${escapeQuotes(rawScore)}', '${escapeQuotes(grade)}')">
+              عرض التقرير
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const grade = document.getElementById('gradeFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      const rows = document.querySelectorAll('#tableBody tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const matchesSearch = text.includes(search);
+        const matchesGrade = !grade || text.includes(grade.toLowerCase());
+        const matchesStatus = !status || text.includes(status.toLowerCase());
+        row.style.display = (matchesSearch && matchesGrade && matchesStatus) ? '' : 'none';
+      });
+    }
+
+    function refreshDashboardData() {
+      loadRealtimeData();
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 2: Student Dossier & Code Lookup
+    // -------------------------------------------------------------------------
+    async function renderQuickStudentChips() {
+      const container = document.getElementById('quickStudentChips');
+      if (!container) return;
+      container.innerHTML = '<span style="font-weight: 800; color: #64748b;">⚡ وصول سريع للطلاب:</span> <span style="font-size: 12px; color: #94a3b8;">جاري التحميل...</span>';
+      
+      let students = [];
+      if (EduFlow.supabaseClient) {
+        try {
+          const { data, error } = await EduFlow.supabaseClient.from('students').select('*').order('created_at', { ascending: false });
+          if (!error && Array.isArray(data)) {
+            students = data;
+          }
+        } catch (e) {
+          console.warn('Chips load error:', e);
+        }
+      }
+
+      if (students.length === 0) {
+        students = EduFlow.getStudents();
+      }
+
+      container.innerHTML = '<span style="font-weight: 800; color: #64748b;">⚡ وصول سريع للطلاب:</span>';
+      if (!students || students.length === 0) {
+        container.innerHTML += '<span style="font-size: 12.5px; color: #94a3b8; margin-right: 8px;">لا يوجد طلاب مسجلون حالياً. عند تسجيل أي طالب جديد، سيظهر رمزه هنا فوراً.</span>';
+        return;
+      }
+
+      students.slice(0, 8).forEach(s => {
+        const chip = document.createElement('span');
+        chip.className = 'qs-chip';
+        chip.innerText = `${s.student_name} (${s.student_id})`;
+        chip.onclick = () => lookupByCode(s.student_id);
+        container.appendChild(chip);
+      });
+    }
+
+    function lookupByCode(code) {
+      document.getElementById('dossierSearchInput').value = code;
+      searchStudentDossier();
+    }
+
+    async function searchStudentDossier() {
+      const query = document.getElementById('dossierSearchInput').value.trim();
+      const area = document.getElementById('dossierResultArea');
+      if (!query) {
+        area.innerHTML = '<div style="background: white; border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 30px; text-align: center; color: #ef4444; font-weight: 700;">⚠️ يرجى إدخال كود الطالب أو اسمه أولاً</div>';
+        return;
+      }
+
+      area.innerHTML = '<div style="background: white; border-radius: 14px; padding: 30px; text-align: center; color: #2563eb; font-weight: 700;">⏳ جاري جلب ملف الطالب وسجلاته من قاعدة البيانات السحابية...</div>';
+      const dossier = await EduFlow.getStudentComprehensiveDossierAsync(query);
+      if (!dossier) {
+        area.innerHTML = `<div style="background: #fef2f2; border: 1.5px solid #fecaca; border-radius: var(--radius); padding: 30px; text-align: center; color: #991b1b; font-weight: 700;">
+          ❌ لم يتم العثور على أي طالب مسجل يطابق: <strong>"${escapeHtml(query)}"</strong>.<br>
+          <span style="font-size: 12px; color: #64748b; font-weight: normal;">يرجى التأكد من كتابة كود الطالب بشكل صحيح (مثل EDU-XXXX) أو الاسم ثلاثي.</span>
+        </div>`;
+        return;
+      }
+
+      const st = dossier.student;
+      const stats = dossier.stats;
+      const cleanPhone = (st.student_phone || st.parent_phone || '').replace(/[^0-9]/g, '');
+      const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone.replace(/^0/, '20')}&text=${encodeURIComponent('السلام عليكم أ / ' + st.parent_name + '، بخصوص الطالب ' + st.student_name + ' من منصة EduFlow:')}`;
+
+      let absenceAlert = '';
+      if (stats.consecutiveAbsences >= 2) {
+        absenceAlert = `
+          <div style="background: #fef2f2; border-right: 4px solid #ef4444; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; color: #991b1b; font-size: 13px; font-weight: 700;">
+            🚨 إنذار مبكر: الطالب لديه ${stats.consecutiveAbsences} أيام غياب متتالية! يتطلب تدخلاً عاجلاً وإرسال تنبيه لولي أمره.
+          </div>
+        `;
+      }
+
+      let assessmentsHtml = '';
+      if (dossier.assessments.length === 0) {
+        assessmentsHtml = '<div style="color: #64748b; font-size: 13px; padding: 12px 0;">لم يقم الطالب بحل اختبارات مسجلة حتى الآن.</div>';
+      } else {
+        assessmentsHtml = `
+          <table style="width: 100%; font-size: 13px; margin-top: 10px;">
+            <thead>
+              <tr style="background: #f1f5f9; color: #475569;">
+                <th style="padding: 8px 12px;">اسم الاختبار</th>
+                <th style="padding: 8px 12px;">الدرجة</th>
+                <th style="padding: 8px 12px;">نسبة النجاح</th>
+                <th style="padding: 8px 12px;">التاريخ</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${dossier.assessments.map(a => `
+                <tr>
+                  <td style="padding: 10px 12px; font-weight: 700; color: #1e3a8a;">${escapeHtml(a.title)}</td>
+                  <td style="padding: 10px 12px; font-weight: 800;">${a.score} / ${a.max_score}</td>
+                  <td style="padding: 10px 12px;"><span class="badge ${a.pct >= 70 ? 'badge-score-4' : 'badge-score-low'}">${a.pct}%</span></td>
+                  <td style="padding: 10px 12px; color: #64748b;">${a.submitted_at}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      area.innerHTML = `
+        <div class="dossier-panel">
+          <div class="dossier-header">
+            <div class="dossier-user-info">
+              <div class="dossier-avatar">${st.avatar || '👨‍🎓'}</div>
+              <div class="dossier-name-box">
+                <h3>${escapeHtml(st.student_name)}</h3>
+                <div style="font-size: 13px; color: #64748b; font-weight: 700;">
+                  📚 ${escapeHtml(st.grade_level)} • <span class="dossier-code-pill">كود الطالب: ${st.student_id}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <a href="${waUrl}" target="_blank" class="btn btn-outline" style="background: #25d366; color: white; border: none;">
+                <span>💬 مراسلة عبر واتساب</span>
+              </a>
+            </div>
+          </div>
+
+          ${absenceAlert}
+
+          <div class="dossier-contacts-grid">
+            <div>
+              <span style="color: #64748b; font-size: 11.5px; font-weight: 700;">هاتف الطالب / واتساب:</span>
+              <div style="font-weight: 800; color: #0f172a;">${st.student_phone || 'غير مسجل'}</div>
+            </div>
+            <div>
+              <span style="color: #64748b; font-size: 11.5px; font-weight: 700;">ولي الأمر:</span>
+              <div style="font-weight: 800; color: #0f172a;">${escapeHtml(st.parent_name)}</div>
+            </div>
+            <div>
+              <span style="color: #64748b; font-size: 11.5px; font-weight: 700;">بريد ولي الأمر للإشعارات:</span>
+              <div style="font-weight: 800; color: #2563eb; direction: ltr; text-align: right;">${escapeHtml(st.parent_email)}</div>
+            </div>
+            <div>
+              <span style="color: #64748b; font-size: 11.5px; font-weight: 700;">الرقم السري للطالب (PIN):</span>
+              <div style="font-weight: 800; color: #10b981;">${st.pin || '1234'}</div>
+            </div>
+          </div>
+
+          <!-- Mini KPIs -->
+          <div class="dossier-kpis">
+            <div class="dkpi-box">
+              <div class="dkpi-label">معدل الاستيعاب والدرجات</div>
+              <div class="dkpi-val" style="color: ${stats.statusColor};">${stats.avgScorePct}%</div>
+              <span class="badge ${stats.avgScorePct >= 70 ? 'badge-score-5' : 'badge-score-low'}">${stats.statusLevel}</span>
+            </div>
+            <div class="dkpi-box">
+              <div class="dkpi-label">إجمالي الاختبارات المنجزة</div>
+              <div class="dkpi-val">${stats.totalExams}</div>
+              <span style="font-size: 11px; color: #64748b;">اختبار تدريبي</span>
+            </div>
+            <div class="dkpi-box">
+              <div class="dkpi-label">نسبة الحضور المدرسي</div>
+              <div class="dkpi-val" style="color: #10b981;">${stats.attendanceRate}%</div>
+              <span style="font-size: 11px; color: #64748b;">حضور منتظم</span>
+            </div>
+            <div class="dkpi-box">
+              <div class="dkpi-label">الغياب المتتالي</div>
+              <div class="dkpi-val" style="color: ${stats.consecutiveAbsences >= 2 ? '#ef4444' : '#1e293b'};">${stats.consecutiveAbsences} أيام</div>
+              <span style="font-size: 11px; color: ${stats.consecutiveAbsences >= 2 ? '#ef4444' : '#64748b'}; font-weight: 700;">${stats.consecutiveAbsences >= 2 ? '⚠️ يتطلب إنذار' : '✓ في الحدود الآمنة'}</span>
+            </div>
+          </div>
+
+          <!-- AI Diagnostic Recommendation -->
+          <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 12px; padding: 18px; margin-bottom: 22px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+              <span style="font-size: 20px;">🧠</span>
+              <h4 style="margin: 0; color: #166534; font-size: 14.5px; font-weight: 800;">توصية المستشار التربوي الذكي (Gemini Early Warning Diagnostic):</h4>
+            </div>
+            <p style="margin: 0; font-size: 13px; line-height: 1.7; color: #14532d;">
+              ${stats.aiRecommendation}
+            </p>
+          </div>
+
+          <!-- Completed Exams Table -->
+          <div>
+            <h4 style="font-size: 15px; font-weight: 800; color: #1e3a8a; margin-bottom: 6px;">سجل الاختبارات والكويزات المنجزة:</h4>
+            ${assessmentsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 3: Exam Studio & Publisher
+    // -------------------------------------------------------------------------
+    let currentQuestions = [];
+
+    function initDefaultQuestion() {
+      currentQuestions = [
+        {
+          question: '',
+          choices: ['', '', '', ''],
+          correctIndex: 0,
+          explanation: ''
+        }
+      ];
+      renderQuestionsBuilder();
+    }
+
+    function renderQuestionsBuilder() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+
+      currentQuestions.forEach((q, qIdx) => {
+        const div = document.createElement('div');
+        div.className = 'question-block';
+        div.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="font-size: 13.5px; color: #1e3a8a;">سؤال #${qIdx + 1}:</strong>
+            ${currentQuestions.length > 1 ? `<button type="button" onclick="removeQuestionField(${qIdx})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; font-weight: 700;">✕ حذف</button>` : ''}
+          </div>
+          <input type="text" class="st-input" style="margin-bottom: 10px;" placeholder="اكتب نص السؤال هنا..." value="${escapeHtml(q.question)}" oninput="currentQuestions[${qIdx}].question = this.value" required>
+
+          <div style="font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">الخيارات الأربعة (حدد الدائرة أمام الإجابة الصحيحة):</div>
+          ${q.choices.map((c, cIdx) => `
+            <div class="choice-row">
+              <input type="radio" name="correct_${qIdx}" value="${cIdx}" ${q.correctIndex === cIdx ? 'checked' : ''} onchange="currentQuestions[${qIdx}].correctIndex = ${cIdx}">
+              <input type="text" class="choice-input" placeholder="الخيار ${cIdx + 1}" value="${escapeHtml(c)}" oninput="currentQuestions[${qIdx}].choices[${cIdx}] = this.value" required>
+            </div>
+          `).join('')}
+
+          <div style="margin-top: 8px;">
+            <input type="text" class="st-input" style="font-size: 12px;" placeholder="التفسير العلمي للإجابة الصحيحة (يظهر للطالب)..." value="${escapeHtml(q.explanation || '')}" oninput="currentQuestions[${qIdx}].explanation = this.value">
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addQuestionField() {
+      currentQuestions.push({
+        question: '',
+        choices: ['', '', '', ''],
+        correctIndex: 0,
+        explanation: ''
+      });
+      renderQuestionsBuilder();
+    }
+
+    function removeQuestionField(idx) {
+      currentQuestions.splice(idx, 1);
+      renderQuestionsBuilder();
+    }
+
+    function autofillAiExam() {
+      const grade = document.getElementById('exGrade').value;
+      if (grade.includes('الأول')) {
+        document.getElementById('exTitle').value = 'اختبار العلوم: التركيب الذري والمستويات الكيميائية ⚛️';
+        document.getElementById('exSubject').value = 'العلوم';
+        currentQuestions = [
+          {
+            question: 'ما هي الشحنة الكهربية التي تحملها نواة الذرة؟',
+            choices: ['موجبة الشحنة', 'سالبة الشحنة', 'متعادلة الشحنة', 'عديمة الشحنة'],
+            correctIndex: 0,
+            explanation: 'النواة موجبة الشحنة لاحتوائها على بروتونات موجبة ونيوترونات متعادلة كهربياً.'
+          },
+          {
+            question: 'عدد مستويات الطاقة المشغولة بالإلكترونات في أثقل الذرات المعروفة هو:',
+            choices: ['5 مستويات', '7 مستويات', '8 مستويات', '10 مستويات'],
+            correctIndex: 1,
+            explanation: 'أثقل الذرات تحتوي على 7 مستويات طاقة رئيسية يرمز لها بالحروف K, L, M, N, O, P, Q.'
+          }
+        ];
+      } else {
+        document.getElementById('exTitle').value = 'اختبار العلوم: الجهاز الدوري وضغط الدم 🫀';
+        document.getElementById('exSubject').value = 'العلوم';
+        currentQuestions = [
+          {
+            question: 'أي من الحجرات القلبية مسؤولة عن ضخ الدم المؤكسج لجميع أجزاء الجسم؟',
+            choices: ['البطين الأيسر', 'البطين الأيمن', 'الأذين الأيسر', 'الأذين الأيمن'],
+            correctIndex: 0,
+            explanation: 'البطين الأيسر يمتلك جداراً عضلياً سميكاً ليتحمل ضخ الدم بقوة عبر الشريان الأورطي لكافة الأعضاء.'
+          },
+          {
+            question: 'ضغط الدم المثالي للشخص البالغ الطبيعي هو تقريباً:',
+            choices: ['120 / 80 مم زئبق', '80 / 120 مم زئبق', '150 / 90 مم زئبق', '100 / 50 مم زئبق'],
+            correctIndex: 0,
+            explanation: '120 تمثل الضغط الانقباضي و 80 تمثل الضغط الانبساطي في الشرايين.'
+          }
+        ];
+      }
+      renderQuestionsBuilder();
+    }
+
+    async function handlePublishExam(e) {
+      e.preventDefault();
+      const title = document.getElementById('exTitle').value.trim();
+      const grade = document.getElementById('exGrade').value;
+      const subject = document.getElementById('exSubject').value.trim();
+      const duration = document.getElementById('exDuration').value;
+      const deadline = document.getElementById('exDeadline').value.trim();
+
+      const newExam = await EduFlow.publishExamAsync({
+        title: title,
+        grade_level: grade,
+        subject: subject,
+        duration_minutes: duration,
+        deadline: deadline,
+        questions: currentQuestions
+      });
+
+      alert(`تم نشر الاختبار بنجاح في قاعدة البيانات السحابية! 🚀\nالكود التعريفي: ${newExam.exam_id}\nأصبح متاحاً الآن لجميع طلاب ${grade} في بوابتهم.`);
+      renderPublishedExams();
+      document.getElementById('exTitle').value = '';
+    }
+
+    async function renderPublishedExams() {
+      const container = document.getElementById('publishedExamsList');
+      container.innerHTML = '<div style="color: #64748b; font-size: 13px;">جاري تحميل الامتحانات...</div>';
+      const exams = await EduFlow.getExamsByGradeAsync();
+      container.innerHTML = '';
+
+      if (exams.length === 0) {
+        container.innerHTML = '<div style="color: #64748b; font-size: 13px;">لا توجد امتحانات منشورة حالياً</div>';
+        return;
+      }
+
+      exams.forEach(ex => {
+        const qCount = Array.isArray(ex.questions) ? ex.questions.length : 0;
+        const div = document.createElement('div');
+        div.className = 'published-exam-card';
+        div.innerHTML = `
+          <div>
+            <strong style="color: #1e3a8a; font-size: 14px; display: block;">${escapeHtml(ex.title)}</strong>
+            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+              📚 ${escapeHtml(ex.grade_level)} • ⏳ ${ex.duration_minutes} دقيقة • ❓ ${qCount} أسئلة
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px; color: #ef4444;" onclick="deletePublishedExam('${ex.exam_id}')">
+              حذف
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    async function deletePublishedExam(id) {
+      if (confirm('هل ترغب في حذف هذا الاختبار من المنظومة وقاعدة البيانات السحابية؟')) {
+        await EduFlow.deleteExamAsync(id);
+        await renderPublishedExams();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Tab 4: Roll Call & Attendance System
+    // -------------------------------------------------------------------------
+    async function renderAttendanceTable() {
+      const tbody = document.getElementById('attendanceTableBody');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #2563eb;">⏳ جاري جلب سجلات الطلاب من قاعدة البيانات السحابية...</td></tr>';
+      
+      let students = EduFlow.getStudents();
+      if (EduFlow.supabaseClient) {
+        try {
+          const { data } = await EduFlow.supabaseClient.from('students').select('*').order('created_at', { ascending: false });
+          if (Array.isArray(data) && data.length > 0) students = data;
+        } catch (e) {
+          console.warn('Attendance students fetch error:', e);
+        }
+      }
+
+      // Live attendance history calculation
+      let allAttendance = [];
+      if (EduFlow.supabaseClient) {
+        try {
+          const { data: attData } = await EduFlow.supabaseClient.from('attendance').select('*');
+          if (Array.isArray(attData)) allAttendance = attData;
+        } catch (e) {}
+      }
+      if (allAttendance.length === 0) {
+        allAttendance = EduFlow.getAttendance();
+      }
+
+      tbody.innerHTML = '';
+      if (!students || students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 24px; color: #64748b;">لا يوجد طلاب مسجلون حالياً</td></tr>';
+        return;
+      }
+
+      students.forEach(st => {
+        const stAtt = allAttendance.filter(a => a.student_id === st.student_id);
+        const totalDays = stAtt.length;
+        const presentDays = stAtt.filter(a => a.status === 'حاضر').length;
+        const lateDays = stAtt.filter(a => a.status === 'متأخر').length;
+        const attRate = totalDays > 0 ? Math.round(((presentDays + (lateDays * 0.5)) / totalDays) * 100) : 100;
+
+        const consecutive = st.consecutive_absences || 0;
+        let warningPill = '<span class="badge badge-sent">✓ حضور منتظم</span>';
+        if (consecutive >= 2 || attRate < 75) {
+          warningPill = `<span class="badge badge-score-low">🚨 في خطر (${consecutive} غياب)</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-family: monospace; font-weight: 800; color: #1e3a8a;">${st.student_id}</td>
+          <td><strong>${escapeHtml(st.student_name)}</strong></td>
+          <td>${escapeHtml(st.grade_level)}</td>
+          <td><strong style="color: ${attRate >= 80 ? '#10b981' : (attRate >= 70 ? '#f59e0b' : '#ef4444')}; font-size: 14px;">${attRate}%</strong></td>
+          <td><strong>${consecutive} أيام</strong></td>
+          <td>${warningPill}</td>
+          <td>
+            <select class="filter-select attendance-status-select" data-id="${st.student_id}">
+              <option value="حاضر" selected>حاضر 🟢</option>
+              <option value="غائب">غائب 🔴</option>
+              <option value="متأخر">متأخر 🟡</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function saveRollCall() {
+      const selects = document.querySelectorAll('.attendance-status-select');
+      const records = [];
+      const today = new Date().toISOString().substring(0, 10);
+
+      selects.forEach(sel => {
+        records.push({
+          date: today,
+          student_id: sel.getAttribute('data-id'),
+          status: sel.value
+        });
+      });
+
+      await EduFlow.saveAttendanceRecordAsync(records);
+      alert('تم حفظ سجل الحضور والغياب لليوم وتحديث قاعدة البيانات السحابية بنجاح! 💾');
+      renderAttendanceTable();
+    }
+
+    // -------------------------------------------------------------------------
+    // Report Preview Modal
+    // -------------------------------------------------------------------------
+    function previewReport(studentName, lessonName, rawScore, grade) {
+      const parsed = parseScoreData(rawScore);
+      let appreciation = `حقق أداءً استثنائياً مبهراً ونال درجة التفوق والامتياز بنسبة ${parsed.pct}%!`;
+      let advice = 'نوصي بتقديم تحديات معرفية إضافية للطالب والاستمرار في تشجيعه ليظل قدوة لزملائه.';
+
+      if (parsed.pct >= 70 && parsed.pct < 85) {
+        appreciation = `أظهر مستوى رائعاً وفهماً عميقاً للمفاهيم الأساسية، بنسبة نجاح بلغت ${parsed.pct}%.`;
+        advice = 'نوصي بمراجعة بطاقات الاستذكار السريعة للنقاط البسيطة المتبقية للوصول إلى الدرجة النهائية في الاختبارات القادمة.';
+      } else if (parsed.pct < 70) {
+        appreciation = `بذل جهداً طيباً ومحاولة جيدة، بنسبة إنجاز ${parsed.pct}%، ويحتاج إلى دعم ومتابعة لتعزيز استيعاب بعض النقاط.`;
+        advice = 'نوصي بإعادة قراءة ملخص الدرس وإجراء تدريب سريع آخر لترسيخ المعلومات بصورة أفضل.';
+      }
+
+      document.getElementById('modalStudentTitle').innerText = `تقرير متابعة الطالب: ${studentName}`;
+      document.getElementById('modalReportContent').innerHTML = `
+        <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 16px; margin-bottom: 18px;">
+          <h4 style="margin: 0 0 8px; color: #1e40af;">🎓 بطاقة الأداء الأكاديمي الحية (Google Sheets & DB Sync)</h4>
+          <p style="margin: 0; line-height: 1.7;">
+            <strong>الطالب:</strong> ${studentName}<br>
+            <strong>الصف:</strong> ${grade || 'المرحلة الإعدادية'}<br>
+            <strong>اسم الدرس:</strong> ${lessonName}<br>
+            <strong>الدرجة المسجلة:</strong> <span style="color: #2563eb; font-weight: 800;">${parsed.display} (نسبة الإنجاز: ${parsed.pct}%)</span>
+          </p>
+        </div>
+        <p><strong>السيد / ولي أمر الطالب الكريم،، تحية طيبة وبعد،،</strong></p>
+        <p>نود إحاطتكم علماً بأن نجلكم/ابنتكم قد أنهى تدريبات درس <strong>(${lessonName})</strong> عبر منصة رواد التعليمية الذكية، و${appreciation}</p>
+        <div style="background: #f8fafc; border-right: 4px solid #10b981; padding: 12px 16px; margin: 15px 0; border-radius: 6px;">
+          <strong>💡 التوصية التربوية للمستشار الذكي (Gemini):</strong><br>
+          ${advice}
+        </div>
+        <p style="margin-top: 18px; font-weight: 700; color: #1e3a8a;">
+          مع خالص التمنيات بدوام التفوق والريادة،<br>
+          إدارة المتابعة والتعليم الذكي ✨
+        </p>
+      `;
+      document.body.classList.add('modal-open');
+      document.getElementById('reportModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('reportModal').classList.remove('active');
+      document.body.classList.remove('modal-open');
+    }
+
+    window.addEventListener('click', function(e) {
+      const repModal = document.getElementById('reportModal');
+      if (e.target === repModal) {
+        closeModal();
+      }
+    });
+
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeQuotes(str) {
+      if (!str) return '';
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // -------------------------------------------------------------------------
+    // Teacher Authentication
+    // -------------------------------------------------------------------------
+    const TEACHER_PASSWORD = 'admin123';
+
+    function checkAuth() {
+      const isAuth = sessionStorage.getItem('teacher_auth') === 'true' || (window.EduFlow && EduFlow.isTeacherAuth());
+      const gate = document.getElementById('authGate');
+      const main = document.getElementById('mainDashboard');
+
+      if (isAuth) {
+        gate.style.display = 'none';
+        main.style.display = 'block';
+        loadRealtimeData();
+        initDefaultQuestion();
+        renderPublishedExams();
+      } else {
+        gate.style.display = 'flex';
+        main.style.display = 'none';
+      }
+    }
+
+    function handleTeacherLogin(e) {
+      e.preventDefault();
+      const input = document.getElementById('teacherPassInput');
+      const err = document.getElementById('authError');
+
+      if (input.value.trim() === TEACHER_PASSWORD) {
+        if (window.EduFlow) EduFlow.loginTeacher('admin123');
+        sessionStorage.setItem('teacher_auth', 'true');
+        err.style.display = 'none';
+        checkAuth();
+      } else {
+        err.style.display = 'block';
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    function teacherLogout() {
+      if (confirm('هل ترغب في تسجيل الخروج وقفل لوحة المعلم؟')) {
+        if (window.EduFlow) EduFlow.logout('teacher');
+        else {
+          sessionStorage.removeItem('teacher_auth');
+          window.location.href = 'login.html';
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+    });
+  </script>
+</body>
+</html>
